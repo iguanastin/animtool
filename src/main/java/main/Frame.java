@@ -5,6 +5,9 @@ import javafx.scene.image.Image;
 
 import java.io.File;
 
+/**
+ * A single frame of an animation loaded from file.
+ */
 public class Frame implements Comparable<Frame> {
 
     private final File file;
@@ -15,6 +18,12 @@ public class Frame implements Comparable<Frame> {
         this.file = file;
     }
 
+    /**
+     * Gets this frame's image. Loads the image if it is not already loaded in.
+     *
+     * @param reload Force a reload from file.
+     * @return This frame's image.
+     */
     public Image getImage(boolean reload) {
         if (reload || image == null) {
             image = new Image(file.toURI().toString(), true);
@@ -24,6 +33,9 @@ public class Frame implements Comparable<Frame> {
         return image;
     }
 
+    /**
+     * @return This frame's file.
+     */
     public File getFile() {
         return file;
     }

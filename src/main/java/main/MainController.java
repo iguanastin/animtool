@@ -44,12 +44,20 @@ public class MainController {
         initWatchService();
     }
 
+    /**
+     * @param folder Folder containing the animation frames.
+     */
     private void setFolder(File folder) {
         loadFramesFromFolder(folder);
         setWatchFolder(folder);
         currentFolder = folder;
     }
 
+    /**
+     * Loads animation frames from the files in a folder.
+     *
+     * @param folder Folder containing animation frames.
+     */
     private void loadFramesFromFolder(File folder) {
         frames.clear();
         File[] images = folder.listFiles((dir, name) -> {
@@ -67,6 +75,9 @@ public class MainController {
         refreshTimeline();
     }
 
+    /**
+     * @param folder Folder to watch for events.
+     */
     private void setWatchFolder(File folder) {
         if (watchKey != null) watchKey.cancel();
         try {
@@ -80,6 +91,9 @@ public class MainController {
         }
     }
 
+    /**
+     * Initializes the watch service on the current folder, listening for file events.
+     */
     private void initWatchService() {
         try {
             watcher = FileSystems.getDefault().newWatchService();
@@ -127,11 +141,19 @@ public class MainController {
         }
     }
 
+    /**
+     * Sets the framerate of the animation.
+     *
+     * @param fps Framerate in frames per second.
+     */
     private void setFramerate(int fps) {
         this.fps = fps;
         refreshTimeline();
     }
 
+    /**
+     * Refreshes the timeline object with current images.
+     */
     private void refreshTimeline() {
         if (timeline != null) {
             timeline.stop();
@@ -143,13 +165,18 @@ public class MainController {
 
         for (int i = 0; i < frames.size(); i++) {
             Frame frame = frames.get(i);
-            timeline.getKeyFrames().add(new KeyFrame(Duration.millis(1000.0 / fps * i), "Frame " + i, event -> updateImage(frame.getImage(false))));
+            timeline.getKeyFrames().add(new KeyFrame(Duration.millis(1000.0 / fps * i), "Frame " + i, event -> previewImageView.setImage(frame.getImage(false))));
         }
 
         if (playing) timeline.play();
-        else if (!frames.isEmpty()) updateImage(frames.get(0).getImage(false));
+        else if (!frames.isEmpty()) previewImageView.setImage(frames.get(0).getImage(false));
     }
 
+    /**
+     * Called when a file modification event is captured.
+     *
+     * @param file File that was modified.
+     */
     private void fileModified(File file) {
         String path = currentFolder.getAbsolutePath();
         if (!path.endsWith("/")) path += "/";
@@ -161,6 +188,11 @@ public class MainController {
         System.out.println("File modified: " + path);
     }
 
+    /**
+     * Called when a file deletion event is captured.
+     *
+     * @param file File that was deleted.
+     */
     private void fileDeleted(File file) {
         String path = currentFolder.getAbsolutePath();
         if (!path.endsWith("/")) path += "/";
@@ -171,6 +203,11 @@ public class MainController {
         System.out.println("File deleted: " + path);
     }
 
+    /**
+     * Called when a file creation event is captured.
+     *
+     * @param file File that was created.
+     */
     private void fileCreated(File file) {
         String path = currentFolder.getAbsolutePath();
         if (!path.endsWith("/")) path += "/";
@@ -183,10 +220,24 @@ public class MainController {
         System.out.println("File created: " + path);
     }
 
-    private void updateImage(Image img) {
-        synchronized (previewImageView) {
-            previewImageView.setImage(img);
+    /**
+     * Parses text from the framerate textfield and attempts to convert it into a valid int.
+     *
+     * @return True if it failed.
+     */
+    private boolean updateFramerateFromTextfield() {
+        try {
+            int i = Integer.parseInt(fpsTextField.getText());
+            if (i <= 0 || i >= 100) throw new NumberFormatException();
+            setFramerate(i);
+        } catch (NumberFormatException e) {
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setContentText("Invalid FPS. Must be integer in range (1-100)");
+            a.setTitle("Error");
+            a.showAndWait();
+            return true;
         }
+        return false;
     }
 
     public void alwaysOnTopToggleOnAction(ActionEvent event) {
@@ -212,21 +263,6 @@ public class MainController {
     public void fpsTextFieldOnAction(ActionEvent event) {
         if (updateFramerateFromTextfield()) return;
         event.consume();
-    }
-
-    private boolean updateFramerateFromTextfield() {
-        try {
-            int i = Integer.parseInt(fpsTextField.getText());
-            if (i <= 0 || i >= 100) throw new NumberFormatException();
-            setFramerate(i);
-        } catch (NumberFormatException e) {
-            Alert a = new Alert(Alert.AlertType.ERROR);
-            a.setContentText("Invalid FPS. Must be integer in range (1-100)");
-            a.setTitle("Error");
-            a.showAndWait();
-            return true;
-        }
-        return false;
     }
 
     public void browseButtonOnAction(ActionEvent event) {

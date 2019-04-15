@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import main.DynamicImageView?>
 
-<BorderPane prefHeight="623.0" prefWidth="873.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.MainController">
+<BorderPane prefHeight="623.0" prefWidth="873.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.MainController">
     <center>
         <DynamicImageView fx:id="previewImageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
     </center>
@@ -20,18 +20,30 @@
                 <padding>
                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                 </padding>
-                <Button fx:id="playPauseButton" mnemonicParsing="false" onAction="#playPauseButtonOnAction" text="Play" />
             </HBox>
-            <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="5.0" VBox.vgrow="ALWAYS">
-                <padding>
-                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                </padding>
-                <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#browseButtonOnAction" text="Browse" />
-                <Label fx:id="animFolderLabel" prefWidth="286.0" HBox.hgrow="ALWAYS" />
-                <ToggleButton fx:id="alwaysOnTopToggleButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#alwaysOnTopToggleOnAction" text="Always On Top" />
-                <Label minWidth="-Infinity" text="FPS:" />
-                <TextField fx:id="fpsTextField" minWidth="-Infinity" onAction="#fpsTextFieldOnAction" prefHeight="25.0" prefWidth="33.0" text="12" />
-            </HBox>
+         <BorderPane>
+            <top>
+                   <Button fx:id="playPauseButton" mnemonicParsing="false" onAction="#playPauseButtonOnAction" text="Play" BorderPane.alignment="CENTER" />
+            </top>
+            <padding>
+               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+            <right>
+                  <HBox alignment="CENTER_LEFT" spacing="5.0" BorderPane.alignment="CENTER">
+                      <Label minWidth="-Infinity" text="FPS:" />
+                      <TextField fx:id="fpsTextField" minWidth="-Infinity" onAction="#fpsTextFieldOnAction" prefHeight="25.0" prefWidth="33.0" text="12" />
+                      <ToggleButton fx:id="alwaysOnTopToggleButton" minWidth="-Infinity" mnemonicParsing="false" onAction="#alwaysOnTopToggleOnAction" text="Always On Top" />
+                  </HBox>
+            </right>
+            <center>
+               <HBox alignment="CENTER_LEFT" spacing="5.0" BorderPane.alignment="CENTER">
+                  <children>
+                         <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#browseButtonOnAction" text="Browse" />
+                         <Label fx:id="animFolderLabel" HBox.hgrow="ALWAYS" />
+                  </children>
+               </HBox>
+            </center>
+         </BorderPane>
         </VBox>
     </bottom>
 </BorderPane>
