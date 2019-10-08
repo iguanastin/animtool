@@ -1,6 +1,10 @@
 package main;
 
 
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.Image;
 
 import java.io.File;
@@ -11,7 +15,9 @@ import java.io.File;
 public class Frame implements Comparable<Frame> {
 
     private final File file;
-    private Image image;
+
+    private final ObjectProperty<Image> image = new SimpleObjectProperty<>();
+    private final LongProperty delay = new SimpleLongProperty(-1);
 
 
     public Frame(File file) {
@@ -21,16 +27,23 @@ public class Frame implements Comparable<Frame> {
     /**
      * Gets this frame's image. Loads the image if it is not already loaded in.
      *
-     * @param reload Force a reload from file.
      * @return This frame's image.
      */
-    public Image getImage(boolean reload) {
-        if (reload || image == null) {
-            image = new Image(file.toURI().toString(), true);
-            System.out.println("Loading image: " + file.getAbsolutePath());
+    public synchronized Image getImage() {
+        if (image.get() == null) {
+            loadImage();
         }
 
-        return image;
+        return image.get();
+    }
+
+    public synchronized Image loadImage() {
+        Image img = new Image(file.toURI().toString(), true);
+        System.out.println("Loading image: " + file.getAbsolutePath());
+
+        image.set(img);
+
+        return img;
     }
 
     /**
@@ -57,6 +70,18 @@ public class Frame implements Comparable<Frame> {
         } else {
             return getFile().compareTo(o.getFile());
         }
+    }
+
+    public LongProperty delayProperty() {
+        return delay;
+    }
+
+    public synchronized void setDelay(long delay) {
+        this.delay.set(delay);
+    }
+
+    public synchronized long getDelay() {
+        return delay.get();
     }
 
 }

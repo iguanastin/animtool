@@ -4,10 +4,10 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -32,9 +33,9 @@ public class MainController {
     private WatchKey watchKey;
     private File currentFolder;
 
-    private Timeline timeline;
-    private boolean playing = false;
-    private int fps = 12;
+    private final ObjectProperty<Timeline> timeline = new SimpleObjectProperty<>();
+    private final BooleanProperty playing = new SimpleBooleanProperty(false);
+    private final IntegerProperty fps = new SimpleIntegerProperty(12);
 
     private final ArrayList<Frame> frames = new ArrayList<>();
 
@@ -42,6 +43,8 @@ public class MainController {
     @FXML
     public void initialize() {
         initWatchService();
+
+        fps.addListener(observable -> refreshTimeline());
     }
 
     /**
@@ -64,11 +67,11 @@ public class MainController {
             String work = name.toLowerCase();
             return work.endsWith(".png") || work.endsWith(".jpg") || work.endsWith(".jpeg");
         });
-        if (images != null) {
-            for (File file : images) {
-                if (Main.imageFilter.accept(file.getParentFile(), file.getName())) {
-                    frames.add(new Frame(file));
-                }
+        for (File file : Objects.requireNonNull(images)) {
+            if (Main.imageFilter.accept(file.getParentFile(), file.getName())) {
+                Frame frame = new Frame(file);
+                frame.loadImage();
+                frames.add(frame);
             }
         }
         Collections.sort(frames);
@@ -147,29 +150,31 @@ public class MainController {
      * @param fps Framerate in frames per second.
      */
     private void setFramerate(int fps) {
-        this.fps = fps;
-        refreshTimeline();
+        this.fps.set(fps);
     }
 
     /**
      * Refreshes the timeline object with current images.
      */
     private void refreshTimeline() {
-        if (timeline != null) {
-            timeline.stop();
-            timeline = null;
+        if (timeline.get() != null) {
+            timeline.get().stop();
+            timeline.set(null);
         }
 
-        timeline = new Timeline();
-        timeline.setCycleCount(Animation.INDEFINITE);
+        Timeline tl = new Timeline();
+        timeline.set(tl);
+        tl.setCycleCount(Animation.INDEFINITE);
 
         for (int i = 0; i < frames.size(); i++) {
             Frame frame = frames.get(i);
-            timeline.getKeyFrames().add(new KeyFrame(Duration.millis(1000.0 / fps * i), "Frame " + i, event -> previewImageView.setImage(frame.getImage(false))));
+            long delay = frame.getDelay();
+            if (delay < 0) delay = 1000 / fps.get();
+            tl.getKeyFrames().add(new KeyFrame(Duration.millis(delay * i), "Frame " + i, event -> previewImageView.setImage(frame.getImage())));
         }
 
-        if (playing) timeline.play();
-        else if (!frames.isEmpty()) previewImageView.setImage(frames.get(0).getImage(false));
+        if (playing.get()) tl.play();
+        else if (!frames.isEmpty()) previewImageView.setImage(frames.get(0).getImage());
     }
 
     /**
@@ -183,7 +188,7 @@ public class MainController {
         path += file.getName();
         Frame tmp = new Frame(new File(path));
         if (frames.contains(tmp)) {
-            frames.get(frames.indexOf(tmp)).getImage(true);
+            frames.get(frames.indexOf(tmp)).loadImage();
         }
         System.out.println("File modified: " + path);
     }
@@ -250,13 +255,13 @@ public class MainController {
 
         updateFramerateFromTextfield();
 
-        playing = !playing;
-        if (playing) {
+        playing.set(!playing.get());
+        if (playing.get()) {
             playPauseButton.setText("Pause");
-            timeline.play();
+            timeline.get().play();
         } else {
             playPauseButton.setText("Play");
-            timeline.pause();
+            timeline.get().pause();
         }
     }
 
@@ -272,6 +277,7 @@ public class MainController {
             setFolder(directory);
             animFolderLabel.setText(directory.getAbsolutePath());
         }
+        event.consume();
     }
 
 }
