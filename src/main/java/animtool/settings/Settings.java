@@ -39,7 +39,7 @@ import java.util.List;
 public class Settings {
 
     private static final String VERSION_KEY = "version";
-    private static final String SETTINGS_KEY = "animtool/settings";
+    private static final String SETTINGS_KEY = "settings";
 
     private final List<Setting> settings = new ArrayList<>();
     private int version = 1;
@@ -50,7 +50,7 @@ public class Settings {
         JSONObject json = new JSONObject(fileText);
 
         if (!json.has(VERSION_KEY)) throw new SettingsException("No version tag");
-        if (json.getInt(VERSION_KEY) != version) throw new SettingsException("Unknown animtool.settings version");
+        if (json.getInt(VERSION_KEY) != version) throw new SettingsException("Unknown settings version");
 
         if (json.has(SETTINGS_KEY)) {
             JSONArray arr = json.getJSONArray(SETTINGS_KEY);
@@ -141,7 +141,7 @@ public class Settings {
         json.put(VERSION_KEY, getVersion());
 
         for (Setting setting : settings) {
-            json.append("animtool/settings", setting.toJSON());
+            json.append("settings", setting.toJSON());
         }
 
         try (FileWriter fw = new FileWriter(file)) {

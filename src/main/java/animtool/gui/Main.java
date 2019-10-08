@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -32,9 +33,11 @@ public class Main extends Application {
 
 
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
-        primaryStage.setScene(new Scene(root));
-        primaryStage.setTitle("Simple Anim Preview");
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/projects.fxml"));
+        Scene scene = new Scene(root);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("AnimTool");
+        primaryStage.initStyle(StageStyle.UNDECORATED);
         primaryStage.show();
     }
 
