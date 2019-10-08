@@ -6,7 +6,10 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -15,6 +18,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -40,21 +44,22 @@ public class ProjectsController {
     private double windowDragOffsetX, windowDragOffsetY;
 
     private File lastFolder = null;
-    private final List<String> recentFolders = new ArrayList<>();
+    private final List<File> recentFolders = new ArrayList<>();
     private final BooleanProperty darkTheme = new SimpleBooleanProperty();
 
 
     @FXML
     public void initialize() {
-        rootPane.setOnMousePressed(event -> {
-            windowDragOffsetX = rootPane.getScene().getWindow().getX() - event.getScreenX();
-            windowDragOffsetY = rootPane.getScene().getWindow().getY() - event.getScreenY();
-        });
-        rootPane.setOnMouseDragged(event -> {
-            rootPane.getScene().getWindow().setX(event.getScreenX() + windowDragOffsetX);
-            rootPane.getScene().getWindow().setY(event.getScreenY() + windowDragOffsetY);
-        });
+        initWindowDragListeners();
+        initDarkThemeListener();
 
+        Platform.runLater(() -> {
+            loadConfig();
+            initRecentFolders();
+        });
+    }
+
+    private void initDarkThemeListener() {
         darkTheme.addListener(observable -> {
             if (darkTheme.get()) {
                 if (!rootPane.getScene().getStylesheets().contains(DARK_CSS))
@@ -65,22 +70,26 @@ public class ProjectsController {
                 themeButton.setText("Dark");
             }
         });
+    }
 
-        Platform.runLater(() -> {
-            loadConfig();
-            initRecentFolders();
+    private void initWindowDragListeners() {
+        rootPane.setOnMousePressed(event -> {
+            windowDragOffsetX = rootPane.getScene().getWindow().getX() - event.getScreenX();
+            windowDragOffsetY = rootPane.getScene().getWindow().getY() - event.getScreenY();
+        });
+        rootPane.setOnMouseDragged(event -> {
+            rootPane.getScene().getWindow().setX(event.getScreenX() + windowDragOffsetX);
+            rootPane.getScene().getWindow().setY(event.getScreenY() + windowDragOffsetY);
         });
     }
 
     private void initRecentFolders() {
-        for (String folder : recentFolders) {
-            File file = new File(folder);
-
-            Label name = new Label(file.getName());
+        for (File folder : recentFolders) {
+            Label name = new Label(folder.getName());
             name.setMinWidth(Region.USE_PREF_SIZE);
             name.setFont(new Font(16));
 
-            Label path = new Label(file.getAbsolutePath());
+            Label path = new Label(folder.getAbsolutePath());
             path.setTooltip(new Tooltip(path.getText()));
             path.setTextFill(Color.gray(0.5));
             HBox.setHgrow(path, Priority.ALWAYS);
@@ -113,7 +122,7 @@ public class ProjectsController {
             if (json.has("recent")) {
                 JSONArray arr = json.getJSONArray("recent");
                 for (int i = 0; i < arr.length(); i++) {
-                    recentFolders.add(arr.getString(i));
+                    recentFolders.add(new File(arr.getString(i)));
                 }
             }
         } catch (IOException e) {
@@ -140,24 +149,35 @@ public class ProjectsController {
 
         if (file != null) {
             lastFolder = file.getParentFile();
-            String folder = file.getAbsolutePath();
-            recentFolders.remove(folder);
-            recentFolders.add(0, folder);
 
-            openProject(folder);
+            openProject(file);
         }
     }
 
-    private void openProject(String folder) {
-        // TODO Open project window
-        System.out.println(folder);
+    private void openProject(File folder) {
+        recentFolders.remove(folder);
+        recentFolders.add(0, folder);
+
+        try {
+            Stage stage = new Stage();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
+            loader.setControllerFactory(param -> new MainController(folder)); // TODO
+            Scene scene = new Scene(loader.load());
+            if (darkTheme.get()) scene.getStylesheets().add(DARK_CSS);
+            stage.setScene(scene);
+            stage.setTitle("AnimTool");
+            stage.show();
+        } catch (IOException e) {
+            Main.log.log(Level.SEVERE, "Failed to open main stage", e);
+        }
+
+        ((Stage) rootPane.getScene().getWindow()).close();
 
         try {
             saveConfig();
         } catch (IOException e) {
             Main.log.log(Level.SEVERE, "Failed to save config file: " + configFile, e);
         }
-        Platform.exit(); // Remove
     }
 
     public void themeButtonOnAction(ActionEvent event) {

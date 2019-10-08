@@ -41,11 +41,17 @@ public class MainController {
     private final ArrayList<Frame> frames = new ArrayList<>();
 
 
+    public MainController(File folder) {
+        currentFolder = folder;
+    }
+
     @FXML
     public void initialize() {
         initWatchService();
 
         fps.addListener(observable -> refreshTimeline());
+
+        setFolder(currentFolder);
     }
 
     /**
