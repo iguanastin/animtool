@@ -22,8 +22,9 @@
  SOFTWARE.
  */
 
-package settings;
+package animtool.settings;
 
+import animtool.gui.Main;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
@@ -32,7 +33,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import menagerie.gui.Main;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

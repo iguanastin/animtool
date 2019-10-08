@@ -22,7 +22,7 @@
  SOFTWARE.
  */
 
-package settings;
+package animtool.settings;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -33,7 +33,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import menagerie.util.Util;
 import org.json.JSONObject;
 
 public class StringSetting extends Setting {
@@ -130,7 +129,7 @@ public class StringSetting extends Setting {
 
     @Override
     public boolean equals(Object obj) {
-        return super.equals(obj) && obj instanceof StringSetting && Util.equalsNullable(((StringSetting) obj).getValue(), getValue());
+        return super.equals(obj) && obj instanceof StringSetting && Settings.equalsNullable(((StringSetting) obj).getValue(), getValue());
     }
 
 }

@@ -22,7 +22,7 @@
  SOFTWARE.
  */
 
-package settings;
+package animtool.settings;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;

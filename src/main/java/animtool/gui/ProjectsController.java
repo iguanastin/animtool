@@ -1,4 +1,4 @@
-package gui;
+package animtool.gui;
 
 import javafx.fxml.FXML;
 

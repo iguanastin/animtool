@@ -22,7 +22,7 @@
  SOFTWARE.
  */
 
-package settings;
+package animtool.settings;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;

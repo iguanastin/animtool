@@ -22,7 +22,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>gui.Main</mainClass>
+                            <mainClass>animtool.gui.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

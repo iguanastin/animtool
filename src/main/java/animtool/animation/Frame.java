@@ -1,4 +1,4 @@
-package animation;
+package animtool.animation;
 
 
 import javafx.beans.property.LongProperty;

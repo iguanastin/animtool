@@ -22,8 +22,9 @@
  SOFTWARE.
  */
 
-package settings;
+package animtool.settings;
 
+import javafx.scene.Node;
 import org.json.JSONObject;
 
 public abstract class Setting {
@@ -87,7 +88,19 @@ public abstract class Setting {
             String l1 = getLabel(), l2 = s.getLabel();
             String tip1 = getTip(), tip2 = s.getTip();
             boolean h1 = isHidden(), h2 = s.isHidden();
-            return equalsNullable(id1, id2) && equalsNullable(l1, l2) && equalsNullable(tip1, tip2) && h1 == h2;
+            new SettingNode() {
+
+                @Override
+                public void applyToSetting() {
+
+                }
+
+                @Override
+                public Node getNode() {
+                    return null;
+                }
+            };
+            return Settings.equalsNullable(id1, id2) && Settings.equalsNullable(l1, l2) && Settings.equalsNullable(tip1, tip2) && h1 == h2;
         }
 
         return false;
@@ -95,16 +108,6 @@ public abstract class Setting {
 
     JSONObject toJSON() {
         return new JSONObject().put(ID_KEY, getID());
-    }
-
-    private static boolean equalsNullable(Object obj1, Object obj2) {
-        if (obj1 == null && obj2 == null) return true;
-
-        if (obj1 != null) {
-            return obj1.equals(obj2);
-        }
-
-        return false;
     }
 
 }
