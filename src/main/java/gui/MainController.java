@@ -1,4 +1,4 @@
-package main;
+package gui;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import animation.Frame;
 
 import java.io.File;
 import java.io.IOException;
