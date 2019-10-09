@@ -32,17 +32,18 @@ public class FrameListCell extends ListCell<Frame> {
         setGraphic(new BorderPane(bp, new BorderPane(null, null, null, null, indexLabel), null, null, null));
 
         setOnContextMenuRequested(event -> {
-            if (getItem() != null) {
+            Frame item = getItem();
+            if (item != null) {
                 MenuItem copyPath = new MenuItem("Copy Path");
                 copyPath.setOnAction(event1 -> {
-                    StringSelection selection = new StringSelection(getItem().getFile().getAbsolutePath());
+                    StringSelection selection = new StringSelection(item.getFile().getAbsolutePath());
                     Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
                 });
 
                 MenuItem openFolder = new MenuItem("Open Folder");
                 openFolder.setOnAction(event1 -> {
                     try {
-                        Desktop.getDesktop().open(getItem().getFile().getParentFile());
+                        Desktop.getDesktop().open(item.getFile().getParentFile());
                     } catch (IOException e) {
                         Main.log.log(Level.WARNING, "Unable to open file in desktop", e);
                     }
