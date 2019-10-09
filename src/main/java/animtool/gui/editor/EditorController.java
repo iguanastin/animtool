@@ -25,11 +25,14 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
@@ -109,6 +112,8 @@ public class EditorController {
         });
 
         setFolder(currentFolder);
+
+        Platform.runLater(() -> rootPane.getScene().getWindow().setOnCloseRequest(event -> close()));
     }
 
     private void parseFPSFromTextField() {
@@ -169,6 +174,7 @@ public class EditorController {
         setWatchFolder(folder);
         currentFolder = folder;
         timeLineListView.getSelectionModel().select(0);
+        loadConfig();
     }
 
     /**
@@ -206,8 +212,56 @@ public class EditorController {
         }
     }
 
+    private void loadConfig() {
+        try {
+            JSONObject json = new JSONObject(String.join("\n", Files.readAllLines(currentFolder.toPath().resolve("animtoolproject.json"))));
+
+            // Get dark theme if present
+            if (json.has("default-delay")) {
+                defaultDelay.set(json.getInt("default-delay"));
+            }
+
+            // Get recent folders if present
+            if (json.has("frames")) {
+                JSONArray arr = json.getJSONArray("frames");
+                for (int i = 0; i < arr.length(); i++) {
+                    JSONObject o = arr.getJSONObject(i);
+
+                    String name = o.getString("name");
+                    for (Frame frame : frames) {
+                        if (frame.getFile().getName().equals(name)) {
+                            frame.setDelay(o.getInt("delay"));
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            Main.log.log(Level.WARNING, "Unable to read project config file", e);
+        }
+    }
+
+    private void saveConfig() throws IOException {
+        JSONObject json = new JSONObject();
+        json.put("default-delay", defaultDelay.get());
+        for (Frame frame : frames) {
+            JSONObject obj = new JSONObject();
+            obj.put("name", frame.getFile().getName());
+            obj.put("delay", frame.getDelay());
+            json.append("frames", obj);
+        }
+
+        try (FileWriter fw = new FileWriter(currentFolder.toPath().resolve("animtoolproject.json").toFile())) {
+            json.write(fw, 2, 0);
+        }
+    }
+
     private void close() {
-        // TODO Save config
+        try {
+            saveConfig();
+        } catch (IOException e) {
+            Main.log.log(Level.SEVERE, "Failed to save project config file", e);
+        }
 
         ((Stage) rootPane.getScene().getWindow()).close();
     }
