@@ -1,7 +1,8 @@
 package animtool.gui.editor;
 
-import animtool.gui.media.DynamicImageView;
+import animtool.animation.Frame;
 import animtool.gui.Main;
+import animtool.gui.media.DynamicImageView;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -13,12 +14,15 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import animtool.animation.Frame;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +38,13 @@ public class EditorController {
     public DynamicImageView previewImageView;
     public ListView<Frame> timeLineListView;
     public VBox controlsVBox;
+    public Button leftButton;
+    public Button playButton;
+    public Button rightButton;
+    public ToggleButton pinButton;
+
+    private Image playIcon = null;
+    private Image pauseIcon = null;
 
     private WatchService watcher;
     private WatchKey watchKey;
@@ -41,7 +52,7 @@ public class EditorController {
 
     private final ObjectProperty<Timeline> timeline = new SimpleObjectProperty<>();
     private final BooleanProperty playing = new SimpleBooleanProperty(false);
-    private final IntegerProperty fps = new SimpleIntegerProperty(12);
+    private final IntegerProperty fps = new SimpleIntegerProperty(8);
 
     private final ObservableList<Frame> frames = FXCollections.observableArrayList();
 
@@ -52,8 +63,16 @@ public class EditorController {
 
     @FXML
     public void initialize() {
+        rootPane.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.SPACE) {
+                playing.set(!playing.get());
+                event.consume();
+            }
+        });
+
         initWatchService();
         initTimeLineView();
+        initIcons();
 
         fps.addListener((observable, oldValue, newValue) -> refreshTimeline());
         playing.addListener((observable, oldValue, newValue) -> {
@@ -64,7 +83,27 @@ public class EditorController {
             }
         });
 
+
         setFolder(currentFolder);
+    }
+
+    private void initIcons() {
+        playIcon = new Image(getClass().getResource("/icons/play.png").toString());
+        pauseIcon = new Image(getClass().getResource("/icons/pause.png").toString());
+        playButton.setText(null);
+        playButton.setGraphic(new ImageView(playIcon));
+        playButton.prefWidthProperty().bind(playButton.heightProperty());
+        playing.addListener((observable, oldValue, newValue) -> ((ImageView) playButton.getGraphic()).setImage(newValue ? pauseIcon : playIcon));
+        leftButton.setText(null);
+        leftButton.setGraphic(new ImageView(getClass().getResource("/icons/left.png").toString()));
+        leftButton.prefWidthProperty().bind(leftButton.heightProperty());
+        rightButton.setText(null);
+        rightButton.setGraphic(new ImageView(getClass().getResource("/icons/right.png").toString()));
+        rightButton.prefWidthProperty().bind(rightButton.heightProperty());
+        pinButton.setText(null);
+        pinButton.setGraphic(new ImageView(getClass().getResource("/icons/pin.png").toString()));
+        pinButton.setTooltip(new Tooltip("Pin window on top"));
+        pinButton.prefWidthProperty().bind(pinButton.heightProperty());
     }
 
     private void initTimeLineView() {
@@ -85,6 +124,7 @@ public class EditorController {
         loadFramesFromFolder(folder);
         setWatchFolder(folder);
         currentFolder = folder;
+        timeLineListView.getSelectionModel().select(0);
     }
 
     /**
@@ -197,11 +237,12 @@ public class EditorController {
         for (int i = 0; i < frames.size(); i++) {
             Frame frame = frames.get(i);
             tl.getKeyFrames().add(new KeyFrame(Duration.millis(1000 / fps.get() * i), "Frame " + i, event -> {
-                previewImageView.setImage(frame.getImage());
                 timeLineListView.scrollTo(frame);
                 timeLineListView.getSelectionModel().select(frame);
             }));
         }
+        // Necessary as a sort of cleanup. Without this next line, the last frame never gets any time to show.
+        tl.getKeyFrames().add(new KeyFrame(Duration.millis(1000 / fps.get() * frames.size())));
 
         if (playing.get()) tl.play();
         else if (!frames.isEmpty()) previewImageView.setImage(frames.get(0).getImage());
@@ -255,31 +296,6 @@ public class EditorController {
         System.out.println("File created: " + path);
     }
 
-    /**
-     * Parses text from the framerate textfield and attempts to convert it into a valid int.
-     *
-     * @return True if it failed.
-     */
-    private boolean updateFramerateFromTextfield() {
-        try {
-            int i = Integer.parseInt("12"); // TODO
-            if (i <= 0 || i >= 100) throw new NumberFormatException();
-            setFramerate(i);
-        } catch (NumberFormatException e) {
-            Alert a = new Alert(Alert.AlertType.ERROR);
-            a.setContentText("Invalid FPS. Must be integer in range (1-100)");
-            a.setTitle("Error");
-            a.showAndWait();
-            return true;
-        }
-        return false;
-    }
-
-    public void alwaysOnTopToggleOnAction(ActionEvent event) {
-        ((Stage) rootPane.getScene().getWindow()).setAlwaysOnTop(true); // TODO
-        event.consume();
-    }
-
     public void playButtonOnAction(ActionEvent event) {
         playing.set(!playing.get());
     }
@@ -290,6 +306,24 @@ public class EditorController {
 
     public void rootPaneOnMouseExited(MouseEvent event) {
         rootPane.setBottom(null);
+    }
+
+    public void leftButtonOnAction(ActionEvent event) {
+        int i = timeLineListView.getSelectionModel().getSelectedIndex();
+        if (i > 0) {
+            timeLineListView.getSelectionModel().select(i - 1);
+        }
+    }
+
+    public void rightButtonOnAction(ActionEvent event) {
+        int i = timeLineListView.getSelectionModel().getSelectedIndex();
+        if (i < timeLineListView.getItems().size() - 1) {
+            timeLineListView.getSelectionModel().select(i + 1);
+        }
+    }
+
+    public void pinButtonOnAction(ActionEvent event) {
+        ((Stage) rootPane.getScene().getWindow()).setAlwaysOnTop(pinButton.isSelected());
     }
 
 }

@@ -1,9 +1,8 @@
 package animtool.animation;
 
 
-import javafx.beans.property.LongProperty;
+import animtool.gui.Main;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.Image;
 
@@ -14,7 +13,7 @@ import java.io.File;
  */
 public class Frame implements Comparable<Frame> {
 
-    private static final int THUMBNAIL_SIZE = 150;
+    private static final int THUMBNAIL_SIZE = 100;
 
     private final File file;
 
@@ -41,7 +40,7 @@ public class Frame implements Comparable<Frame> {
 
     public synchronized Image loadImage() {
         Image img = new Image(file.toURI().toString(), true);
-        System.out.println("Loading image: " + file.getAbsolutePath());
+        Main.log.info("Loading image: " + file.getAbsolutePath());
 
         image.set(img);
 

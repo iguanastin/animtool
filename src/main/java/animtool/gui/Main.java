@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 public class Main extends Application {
 
+    public static final String COMMON_CSS = "/fxml/common.css";
     public static FilenameFilter imageFilter = (dir, name) -> {
         name = name.toLowerCase();
         return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg");
@@ -35,7 +36,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/projects.fxml"));
         Scene scene = new Scene(root);
-        scene.getStylesheets().add("/fxml/common.css");
+        scene.getStylesheets().add(COMMON_CSS);
         primaryStage.setScene(scene);
         primaryStage.setTitle("AnimTool");
         primaryStage.initStyle(StageStyle.UNDECORATED);

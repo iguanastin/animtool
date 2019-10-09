@@ -120,7 +120,8 @@ public class ProjectsController {
             if (json.has("recent")) {
                 JSONArray arr = json.getJSONArray("recent");
                 for (int i = 0; i < arr.length(); i++) {
-                    recentFolders.add(new File(arr.getString(i)));
+                    File file = new File(arr.getString(i));
+                    if (file.exists() && file.isDirectory()) recentFolders.add(file);
                 }
             }
         } catch (IOException e) {
@@ -159,9 +160,9 @@ public class ProjectsController {
         try {
             Stage stage = new Stage();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/editor.fxml"));
-            loader.setControllerFactory(param -> new EditorController(folder)); // TODO
+            loader.setControllerFactory(param -> new EditorController(folder));
             Scene scene = new Scene(loader.load());
-            scene.getStylesheets().add("/fxml/common.css");
+            scene.getStylesheets().add(Main.COMMON_CSS);
             if (darkTheme.get()) scene.getStylesheets().add(DARK_CSS);
             stage.setScene(scene);
             stage.setTitle("AnimTool - " + folder.getAbsolutePath());
