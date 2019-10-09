@@ -26,7 +26,13 @@ public class FrameListCell extends ListCell<Frame> {
     private final TextField delayTextField = new TextField();
     private BorderPane topBorderPane;
 
-    private final ChangeListener<Number> delayListener = (observable, oldValue, newValue) -> delayLabel.setText(newValue.intValue() + "ms");
+    private final ChangeListener<Number> delayListener = (observable, oldValue, newValue) -> {
+        if (newValue.intValue() > 0) {
+            delayLabel.setText(newValue.intValue() + "ms");
+        } else {
+            delayLabel.setText(getItem().getDefaultDelay() + "ms");
+        }
+    };
 
 
     FrameListCell() {
@@ -84,7 +90,10 @@ public class FrameListCell extends ListCell<Frame> {
                     }
                 });
 
-                ContextMenu cm = new ContextMenu(copyPath, openFolder);
+                MenuItem defaultDelay = new MenuItem("Default Delay");
+                defaultDelay.setOnAction(event1 -> item.setDelay(-1));
+
+                ContextMenu cm = new ContextMenu(defaultDelay, new SeparatorMenuItem(), copyPath, openFolder);
                 cm.show(this, event.getScreenX(), event.getScreenY());
             }
         });
@@ -102,11 +111,9 @@ public class FrameListCell extends ListCell<Frame> {
         imageView.setImage(null);
         indexLabel.setText(null);
         topBorderPane.setRight(null);
-        setTooltip(null);
         if (item != null) {
             imageView.setImage(item.getThumbnail());
             indexLabel.setText(getIndex() + "");
-            setTooltip(new Tooltip(item.getFile().getAbsolutePath()));
 
             topBorderPane.setRight(delayLabel);
             if (item.getDelay() < 1) {

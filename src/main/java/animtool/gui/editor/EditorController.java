@@ -4,9 +4,7 @@ import animtool.animation.Frame;
 import animtool.export.GifSequenceWriter;
 import animtool.gui.Main;
 import animtool.gui.media.DynamicImageView;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
@@ -350,10 +348,19 @@ public class EditorController {
 
     public void rootPaneOnMouseEntered(MouseEvent event) {
         rootPane.setBottom(controlsVBox);
+
+        TranslateTransition tt = new TranslateTransition(Duration.millis(100), controlsVBox);
+        tt.setFromY(controlsVBox.getHeight());
+        tt.setToY(0);
+        tt.playFromStart();
     }
 
     public void rootPaneOnMouseExited(MouseEvent event) {
-        rootPane.setBottom(null);
+        TranslateTransition tt = new TranslateTransition(Duration.millis(100), controlsVBox);
+        tt.setFromY(0);
+        tt.setToY(controlsVBox.getHeight());
+        tt.setOnFinished(event1 -> rootPane.setBottom(null));
+        tt.playFromStart();
     }
 
     public void leftButtonOnAction(ActionEvent event) {

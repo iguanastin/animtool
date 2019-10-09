@@ -33,7 +33,7 @@
                         onAction="#rightButtonOnAction" text="&gt;"/>
                 <Separator orientation="VERTICAL"/>
                 <Label text="FPS:" />
-                <TextField fx:id="fpsTextField" focusTraversable="false"/>
+                <TextField fx:id="fpsTextField" prefWidth="50" focusTraversable="false"/>
                 <Separator orientation="VERTICAL"/>
                 <ToggleButton fx:id="pinButton" focusTraversable="false" mnemonicParsing="false"
                               onAction="#pinButtonOnAction" text="Pin"/>
