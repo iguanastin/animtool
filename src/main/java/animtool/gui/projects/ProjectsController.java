@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -34,7 +35,7 @@ public class ProjectsController {
 
     private static final File configFile = new File("animtool.json");
 
-    public StackPane rootPane;
+    public BorderPane rootPane;
     public VBox recentVBox;
     public Button themeButton;
 
@@ -209,6 +210,25 @@ public class ProjectsController {
 
     public void exitButtonOnAction(ActionEvent event) {
         close();
+    }
+
+    public void rootPaneOnKeyPressed(KeyEvent event) {
+        if (event.isShortcutDown()) {
+            switch (event.getCode()) {
+                case W:
+                case Q:
+                    close();
+                    event.consume();
+                    break;
+            }
+        } else {
+            switch (event.getCode()) {
+                case ESCAPE:
+                    close();
+                    event.consume();
+                    break;
+            }
+        }
     }
 
 }
