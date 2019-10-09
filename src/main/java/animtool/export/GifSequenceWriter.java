@@ -32,14 +32,11 @@ public class GifSequenceWriter {
         IIOMetadataNode root = (IIOMetadataNode) metadata.getAsTree(metaFormatName);
 
         IIOMetadataNode graphicsControlExtensionNode = getNode(root, "GraphicControlExtension");
-        graphicsControlExtensionNode.setAttribute("disposalMethod", "none");
+        graphicsControlExtensionNode.setAttribute("disposalMethod", "restoreToPrevious"); // none, restoreToBackgroundColor, restoreToPrevious, undefinedDisposalMethod4, undefinedDisposalMethod5, undefinedDisposalMethod6, undefinedDisposalMethod7
         graphicsControlExtensionNode.setAttribute("userInputFlag", "FALSE");
         graphicsControlExtensionNode.setAttribute("transparentColorFlag", "FALSE");
         graphicsControlExtensionNode.setAttribute("delayTime", Integer.toString(delay / 10));
         graphicsControlExtensionNode.setAttribute("transparentColorIndex", "0");
-
-        IIOMetadataNode commentsNode = getNode(root, "CommentExtensions");
-        commentsNode.setAttribute("CommentExtension", "Created by: https://memorynotfound.com");
 
         IIOMetadataNode appExtensionsNode = getNode(root, "ApplicationExtensions");
         IIOMetadataNode child = new IIOMetadataNode("ApplicationExtension");

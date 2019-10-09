@@ -54,6 +54,8 @@ public class ProjectsController {
         Platform.runLater(() -> {
             loadConfig();
             initRecentFolders();
+
+            rootPane.getScene().getWindow().setOnCloseRequest(event -> close());
         });
     }
 
@@ -83,6 +85,14 @@ public class ProjectsController {
 
     private void initRecentFolders() {
         for (File folder : recentFolders) {
+            Button delete = new Button("X");
+            delete.setOnAction(event -> {
+                recentFolders.remove(folder);
+                recentVBox.getChildren().remove(delete.getParent());
+            });
+            delete.prefWidthProperty().bind(delete.heightProperty());
+            delete.setTooltip(new Tooltip("Forget"));
+
             Label name = new Label(folder.getName());
             name.setMinWidth(Region.USE_PREF_SIZE);
             name.setFont(new Font(16));
@@ -96,10 +106,20 @@ public class ProjectsController {
             open.setMinWidth(Region.USE_PREF_SIZE);
             open.setOnAction(event -> openProject(folder));
 
-            HBox h = new HBox(5, name, path, open);
+            HBox h = new HBox(5, delete, name, path, open);
             h.setAlignment(Pos.CENTER);
             recentVBox.getChildren().add(h);
         }
+    }
+
+    private void close() {
+        try {
+            saveConfig();
+        } catch (IOException e) {
+            Main.log.log(Level.SEVERE, "Failed to save config file: " + configFile, e);
+        }
+
+        ((Stage) rootPane.getScene().getWindow()).close();
     }
 
     private void loadConfig() {
@@ -171,13 +191,7 @@ public class ProjectsController {
             Main.log.log(Level.SEVERE, "Failed to open main stage", e);
         }
 
-        ((Stage) rootPane.getScene().getWindow()).close();
-
-        try {
-            saveConfig();
-        } catch (IOException e) {
-            Main.log.log(Level.SEVERE, "Failed to save config file: " + configFile, e);
-        }
+        close();
     }
 
     public void themeButtonOnAction(ActionEvent event) {
@@ -185,12 +199,7 @@ public class ProjectsController {
     }
 
     public void exitButtonOnAction(ActionEvent event) {
-        try {
-            saveConfig();
-        } catch (IOException e) {
-            Main.log.log(Level.SEVERE, "Failed to save config file: " + configFile, e);
-        }
-        Platform.exit();
+        close();
     }
 
 }

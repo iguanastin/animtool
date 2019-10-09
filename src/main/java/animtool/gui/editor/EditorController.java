@@ -1,6 +1,7 @@
 package animtool.gui.editor;
 
 import animtool.animation.Frame;
+import animtool.export.GifSequenceWriter;
 import animtool.gui.Main;
 import animtool.gui.media.DynamicImageView;
 import javafx.animation.Animation;
@@ -11,6 +12,7 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -21,14 +23,21 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -42,6 +51,7 @@ public class EditorController {
     public Button playButton;
     public Button rightButton;
     public ToggleButton pinButton;
+    public Button exportButton;
 
     private Image playIcon = null;
     private Image pauseIcon = null;
@@ -90,20 +100,29 @@ public class EditorController {
     private void initIcons() {
         playIcon = new Image(getClass().getResource("/icons/play.png").toString());
         pauseIcon = new Image(getClass().getResource("/icons/pause.png").toString());
+
         playButton.setText(null);
         playButton.setGraphic(new ImageView(playIcon));
         playButton.prefWidthProperty().bind(playButton.heightProperty());
         playing.addListener((observable, oldValue, newValue) -> ((ImageView) playButton.getGraphic()).setImage(newValue ? pauseIcon : playIcon));
+
         leftButton.setText(null);
         leftButton.setGraphic(new ImageView(getClass().getResource("/icons/left.png").toString()));
         leftButton.prefWidthProperty().bind(leftButton.heightProperty());
+
         rightButton.setText(null);
         rightButton.setGraphic(new ImageView(getClass().getResource("/icons/right.png").toString()));
         rightButton.prefWidthProperty().bind(rightButton.heightProperty());
+
         pinButton.setText(null);
         pinButton.setGraphic(new ImageView(getClass().getResource("/icons/pin.png").toString()));
         pinButton.setTooltip(new Tooltip("Pin window on top"));
         pinButton.prefWidthProperty().bind(pinButton.heightProperty());
+
+        exportButton.setText(null);
+        exportButton.setGraphic(new ImageView(getClass().getResource("/icons/export.png").toString()));
+        exportButton.setTooltip(new Tooltip("Export as gif"));
+        exportButton.prefWidthProperty().bind(exportButton.heightProperty());
     }
 
     private void initTimeLineView() {
@@ -324,6 +343,34 @@ public class EditorController {
 
     public void pinButtonOnAction(ActionEvent event) {
         ((Stage) rootPane.getScene().getWindow()).setAlwaysOnTop(pinButton.isSelected());
+    }
+
+    public void exportButtonOnAction(ActionEvent event) {
+        FileChooser fc = new FileChooser();
+        fc.setInitialDirectory(currentFolder);
+        fc.setInitialFileName("result.gif");
+        fc.setTitle("Export as GIF");
+        fc.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("GIF image", "*.gif"));
+        File file = fc.showSaveDialog(rootPane.getScene().getWindow());
+
+        if (file != null) {
+            List<BufferedImage> imgs = new ArrayList<>();
+            for (Frame frame : frames) {
+                imgs.add(SwingFXUtils.fromFXImage(frame.getImage(), null));
+            }
+
+            try (ImageOutputStream ios = ImageIO.createImageOutputStream(file)) {
+                GifSequenceWriter gsw = new GifSequenceWriter(ios, imgs.get(0).getType(), 1000 / fps.get(), true);
+
+                for (BufferedImage img : imgs) {
+                    gsw.writeToSequence(img);
+                }
+
+                gsw.close();
+            } catch (IOException e) {
+                Main.log.log(Level.SEVERE, "Unable to create GIF writer", e);
+            }
+        }
     }
 
 }

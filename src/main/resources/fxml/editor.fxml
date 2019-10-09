@@ -31,8 +31,11 @@
                         onAction="#playButtonOnAction" text="Play"/>
                 <Button fx:id="rightButton" focusTraversable="false" mnemonicParsing="false"
                         onAction="#rightButtonOnAction" text="&gt;"/>
+                <Separator orientation="VERTICAL"/>
                 <ToggleButton fx:id="pinButton" focusTraversable="false" mnemonicParsing="false"
                               onAction="#pinButtonOnAction" text="Pin"/>
+                <Button fx:id="exportButton" mnemonicParsing="false" onAction="#exportButtonOnAction" text="Export"
+                        focusTraversable="false"/>
             </HBox>
             <ListView fx:id="timeLineListView" editable="true" orientation="HORIZONTAL" prefHeight="150.0"/>
         </VBox>

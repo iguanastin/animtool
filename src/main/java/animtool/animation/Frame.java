@@ -13,7 +13,7 @@ import java.io.File;
  */
 public class Frame implements Comparable<Frame> {
 
-    private static final int THUMBNAIL_SIZE = 100;
+    public static final int THUMBNAIL_SIZE = 100;
 
     private final File file;
 

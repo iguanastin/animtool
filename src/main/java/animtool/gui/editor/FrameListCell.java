@@ -3,6 +3,7 @@ package animtool.gui.editor;
 
 import animtool.animation.Frame;
 import animtool.gui.Main;
+import animtool.gui.media.DynamicImageView;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.*;
@@ -18,14 +19,17 @@ public class FrameListCell extends ListCell<Frame> {
 
     private static final String DEFAULT_STYLE_CLASS = "frame-list-cell";
 
-    private final ImageView imageView = new ImageView();
+    private final DynamicImageView imageView = new DynamicImageView();
     private final Label indexLabel = new Label();
 
 
     FrameListCell() {
         getStyleClass().addAll(DEFAULT_STYLE_CLASS);
 
-        setGraphic(new BorderPane(imageView, new BorderPane(null, null, null, null, indexLabel), null, null, null));
+        BorderPane bp = new BorderPane(imageView);
+        bp.setMinSize(Frame.THUMBNAIL_SIZE, Frame.THUMBNAIL_SIZE);
+        bp.setMaxSize(Frame.THUMBNAIL_SIZE, Frame.THUMBNAIL_SIZE);
+        setGraphic(new BorderPane(bp, new BorderPane(null, null, null, null, indexLabel), null, null, null));
 
         setOnContextMenuRequested(event -> {
             if (getItem() != null) {
