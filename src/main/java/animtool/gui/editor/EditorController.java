@@ -4,11 +4,10 @@ import animtool.animation.Frame;
 import animtool.export.GifSequenceWriter;
 import animtool.gui.Main;
 import animtool.gui.media.DynamicImageView;
+import animtool.gui.projects.ProjectsController;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -210,7 +209,7 @@ public class EditorController {
     private void close() {
         // TODO Save config
 
-        Platform.exit();
+        ((Stage) rootPane.getScene().getWindow()).close();
     }
 
     /**
@@ -292,6 +291,53 @@ public class EditorController {
 
         if (playing.get()) tl.play();
         else if (!frames.isEmpty()) previewImageView.setImage(frames.get(0).getImage());
+    }
+
+    private void showExportDialog() {
+        FileChooser fc = new FileChooser();
+        fc.setInitialDirectory(currentFolder);
+        fc.setInitialFileName("result.gif");
+        fc.setTitle("Export as GIF");
+        fc.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("GIF image", "*.gif"));
+        File file = fc.showSaveDialog(rootPane.getScene().getWindow());
+
+        if (file != null) {
+            GifExportDialog d = new GifExportDialog(defaultDelay.get(), true, GifSequenceWriter.RESTORE_TO_BACKGROUND_DISPOSAL);
+            Optional<GifExportConfig> result = d.showAndWait();
+
+            if (result.isPresent()) {
+                GifExportConfig config = result.get();
+
+                List<BufferedImage> imgs = new ArrayList<>();
+                for (Frame frame : frames) {
+                    imgs.add(SwingFXUtils.fromFXImage(frame.getImage(), null));
+                }
+
+                try (ImageOutputStream ios = ImageIO.createImageOutputStream(file)) {
+                    GifSequenceWriter gsw = new GifSequenceWriter(ios, imgs.get(0).getType(), config.delay, config.loop, config.disposal);
+
+                    for (BufferedImage img : imgs) {
+                        gsw.writeToSequence(img);
+                    }
+
+                    gsw.close();
+
+                    Alert a = new Alert(Alert.AlertType.INFORMATION);
+                    a.setTitle("Success");
+                    a.setHeaderText("Successfully exported GIF");
+                    a.setContentText(file.getAbsolutePath());
+                    a.showAndWait();
+                } catch (IOException e) {
+                    Main.log.log(Level.SEVERE, "Unable to create GIF writer", e);
+
+                    Alert a = new Alert(Alert.AlertType.INFORMATION);
+                    a.setTitle("FAILED");
+                    a.setHeaderText("Exception while attempting to export GIF");
+                    a.setContentText(e.getLocalizedMessage());
+                    a.showAndWait();
+                }
+            }
+        }
     }
 
     /**
@@ -382,56 +428,28 @@ public class EditorController {
     }
 
     public void exportButtonOnAction(ActionEvent event) {
-        FileChooser fc = new FileChooser();
-        fc.setInitialDirectory(currentFolder);
-        fc.setInitialFileName("result.gif");
-        fc.setTitle("Export as GIF");
-        fc.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("GIF image", "*.gif"));
-        File file = fc.showSaveDialog(rootPane.getScene().getWindow());
-
-        if (file != null) {
-            GifExportDialog d = new GifExportDialog(defaultDelay.get(), true, GifSequenceWriter.RESTORE_TO_BACKGROUND_DISPOSAL);
-            Optional<GifExportConfig> result = d.showAndWait();
-
-            if (result.isPresent()) {
-                GifExportConfig config = result.get();
-
-                List<BufferedImage> imgs = new ArrayList<>();
-                for (Frame frame : frames) {
-                    imgs.add(SwingFXUtils.fromFXImage(frame.getImage(), null));
-                }
-
-                try (ImageOutputStream ios = ImageIO.createImageOutputStream(file)) {
-                    GifSequenceWriter gsw = new GifSequenceWriter(ios, imgs.get(0).getType(), config.delay, config.loop, config.disposal);
-
-                    for (BufferedImage img : imgs) {
-                        gsw.writeToSequence(img);
-                    }
-
-                    gsw.close();
-
-                    Alert a = new Alert(Alert.AlertType.INFORMATION);
-                    a.setTitle("Success");
-                    a.setHeaderText("Successfully exported GIF");
-                    a.setContentText(file.getAbsolutePath());
-                    a.showAndWait();
-                } catch (IOException e) {
-                    Main.log.log(Level.SEVERE, "Unable to create GIF writer", e);
-
-                    Alert a = new Alert(Alert.AlertType.INFORMATION);
-                    a.setTitle("FAILED");
-                    a.setHeaderText("Exception while attempting to export GIF");
-                    a.setContentText(e.getLocalizedMessage());
-                    a.showAndWait();
-                }
-            }
-        }
+        showExportDialog();
     }
 
     public void rootPaneOnKeyPressed(KeyEvent event) {
-        if (event.isControlDown()) {
-            if (event.getCode() == KeyCode.Q) {
-                close();
+        if (event.isShortcutDown()) {
+            switch (event.getCode()) {
+                case E:
+                case S:
+                    showExportDialog();
+                    event.consume();
+                    break;
+                case W:
+                    try {
+                        ProjectsController.open(getClass());
+                    } catch (IOException e) {
+                        Main.log.log(Level.SEVERE, "Failed to open Projects window", e);
+                    }
+                    // Intentionally falls over into next case
+                case Q:
+                    close();
+                    event.consume();
+                    break;
             }
         }
     }

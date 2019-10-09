@@ -25,6 +25,9 @@ public class Main extends Application {
 
     public static final String COMMON_CSS = "/fxml/common.css";
     public static final String DARK_CSS = "/fxml/dark.css";
+    public static final String PROJECTS_FXML = "/fxml/projects.fxml";
+    public static final String TITLE = "AnimTool";
+
     public static FilenameFilter imageFilter = (dir, name) -> {
         name = name.toLowerCase();
         return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg");
@@ -35,11 +38,11 @@ public class Main extends Application {
 
 
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/projects.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource(PROJECTS_FXML));
         Scene scene = new Scene(root);
         scene.getStylesheets().add(COMMON_CSS);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("AnimTool");
+        primaryStage.setTitle(TITLE);
         primaryStage.initStyle(StageStyle.UNDECORATED);
         primaryStage.show();
     }

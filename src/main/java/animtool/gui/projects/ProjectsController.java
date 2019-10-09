@@ -18,6 +18,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -109,6 +110,15 @@ public class ProjectsController {
             h.setAlignment(Pos.CENTER);
             recentVBox.getChildren().add(h);
         }
+    }
+
+    public static void open(Class ref) throws IOException {
+        Stage stage = new Stage(StageStyle.UNDECORATED);
+        Scene scene = new Scene(FXMLLoader.load(ref.getResource(Main.PROJECTS_FXML)));
+        scene.getStylesheets().add(Main.COMMON_CSS);
+        stage.setScene(scene);
+        stage.setTitle(Main.TITLE);
+        stage.show();
     }
 
     private void close() {
