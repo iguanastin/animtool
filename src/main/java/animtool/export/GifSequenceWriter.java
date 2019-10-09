@@ -10,29 +10,37 @@ import java.io.IOException;
 
 public class GifSequenceWriter {
 
+    public static final String NONE_DISPOSAL = "none";
+    public static final String RESTORE_TO_BACKGROUND_DISPOSAL = "restoreToBackgroundColor";
+    public static final String RESTORE_TO_PREVIOUS_DISPOSAL = "restoreToPrevious";
+    public static final String UNDEFINED_DISPOSAL_METHOD_4 = "undefinedDisposalMethod4";
+    public static final String UNDEFINED_DISPOSAL_METHOD_5 = "undefinedDisposalMethod5";
+    public static final String UNDEFINED_DISPOSAL_METHOD_6 = "undefinedDisposalMethod6";
+    public static final String UNDEFINED_DISPOSAL_METHOD_7 = "undefinedDisposalMethod7";
+
     private ImageWriter writer;
     private ImageWriteParam params;
     private IIOMetadata metadata;
 
-    public GifSequenceWriter(ImageOutputStream out, int imageType, int delay, boolean loop) throws IOException {
+    public GifSequenceWriter(ImageOutputStream out, int imageType, int delay, boolean loop, String disposal) throws IOException {
         writer = ImageIO.getImageWritersBySuffix("gif").next();
         params = writer.getDefaultWriteParam();
 
         ImageTypeSpecifier imageTypeSpecifier = ImageTypeSpecifier.createFromBufferedImageType(imageType);
         metadata = writer.getDefaultImageMetadata(imageTypeSpecifier, params);
 
-        configureRootMetadata(delay, loop);
+        configureRootMetadata(delay, loop, disposal);
 
         writer.setOutput(out);
         writer.prepareWriteSequence(null);
     }
 
-    private void configureRootMetadata(int delay, boolean loop) throws IIOInvalidTreeException {
+    private void configureRootMetadata(int delay, boolean loop, String disposal) throws IIOInvalidTreeException {
         String metaFormatName = metadata.getNativeMetadataFormatName();
         IIOMetadataNode root = (IIOMetadataNode) metadata.getAsTree(metaFormatName);
 
         IIOMetadataNode graphicsControlExtensionNode = getNode(root, "GraphicControlExtension");
-        graphicsControlExtensionNode.setAttribute("disposalMethod", "restoreToPrevious"); // none, restoreToBackgroundColor, restoreToPrevious, undefinedDisposalMethod4, undefinedDisposalMethod5, undefinedDisposalMethod6, undefinedDisposalMethod7
+        graphicsControlExtensionNode.setAttribute("disposalMethod", disposal);
         graphicsControlExtensionNode.setAttribute("userInputFlag", "FALSE");
         graphicsControlExtensionNode.setAttribute("transparentColorFlag", "FALSE");
         graphicsControlExtensionNode.setAttribute("delayTime", Integer.toString(delay / 10));
@@ -59,6 +67,21 @@ public class GifSequenceWriter {
         IIOMetadataNode node = new IIOMetadataNode(nodeName);
         rootNode.appendChild(node);
         return(node);
+    }
+
+    public void writeToSequence(RenderedImage img, int delay) throws IOException {
+        String metaFormatName = metadata.getNativeMetadataFormatName();
+        IIOMetadataNode root = (IIOMetadataNode) metadata.getAsTree(metaFormatName);
+
+        IIOMetadataNode graphicsControlExtensionNode = getNode(root, "GraphicControlExtension");
+        String old = graphicsControlExtensionNode.getAttribute("delayTime");
+        graphicsControlExtensionNode.setAttribute("delayTime", Integer.toString(delay / 10));
+        metadata.setFromTree(metaFormatName, root);
+
+        writeToSequence(img);
+
+        graphicsControlExtensionNode.setAttribute("delayTime", old);
+        metadata.setFromTree(metaFormatName, root);
     }
 
     public void writeToSequence(RenderedImage img) throws IOException {

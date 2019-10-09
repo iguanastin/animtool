@@ -33,10 +33,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Level;
 
 import static java.nio.file.StandardWatchEventKinds.*;
@@ -103,26 +100,21 @@ public class EditorController {
 
         playButton.setText(null);
         playButton.setGraphic(new ImageView(playIcon));
-        playButton.prefWidthProperty().bind(playButton.heightProperty());
         playing.addListener((observable, oldValue, newValue) -> ((ImageView) playButton.getGraphic()).setImage(newValue ? pauseIcon : playIcon));
 
         leftButton.setText(null);
         leftButton.setGraphic(new ImageView(getClass().getResource("/icons/left.png").toString()));
-        leftButton.prefWidthProperty().bind(leftButton.heightProperty());
 
         rightButton.setText(null);
         rightButton.setGraphic(new ImageView(getClass().getResource("/icons/right.png").toString()));
-        rightButton.prefWidthProperty().bind(rightButton.heightProperty());
 
         pinButton.setText(null);
         pinButton.setGraphic(new ImageView(getClass().getResource("/icons/pin.png").toString()));
         pinButton.setTooltip(new Tooltip("Pin window on top"));
-        pinButton.prefWidthProperty().bind(pinButton.heightProperty());
 
         exportButton.setText(null);
         exportButton.setGraphic(new ImageView(getClass().getResource("/icons/export.png").toString()));
         exportButton.setTooltip(new Tooltip("Export as gif"));
-        exportButton.prefWidthProperty().bind(exportButton.heightProperty());
     }
 
     private void initTimeLineView() {
@@ -354,21 +346,40 @@ public class EditorController {
         File file = fc.showSaveDialog(rootPane.getScene().getWindow());
 
         if (file != null) {
-            List<BufferedImage> imgs = new ArrayList<>();
-            for (Frame frame : frames) {
-                imgs.add(SwingFXUtils.fromFXImage(frame.getImage(), null));
-            }
+            GifExportDialog d = new GifExportDialog(1000 / fps.get(), true, GifSequenceWriter.RESTORE_TO_BACKGROUND_DISPOSAL);
+            Optional<GifExportConfig> result = d.showAndWait();
 
-            try (ImageOutputStream ios = ImageIO.createImageOutputStream(file)) {
-                GifSequenceWriter gsw = new GifSequenceWriter(ios, imgs.get(0).getType(), 1000 / fps.get(), true);
+            if (result.isPresent()) {
+                GifExportConfig config = result.get();
 
-                for (BufferedImage img : imgs) {
-                    gsw.writeToSequence(img);
+                List<BufferedImage> imgs = new ArrayList<>();
+                for (Frame frame : frames) {
+                    imgs.add(SwingFXUtils.fromFXImage(frame.getImage(), null));
                 }
 
-                gsw.close();
-            } catch (IOException e) {
-                Main.log.log(Level.SEVERE, "Unable to create GIF writer", e);
+                try (ImageOutputStream ios = ImageIO.createImageOutputStream(file)) {
+                    GifSequenceWriter gsw = new GifSequenceWriter(ios, imgs.get(0).getType(), config.delay, config.loop, config.disposal);
+
+                    for (BufferedImage img : imgs) {
+                        gsw.writeToSequence(img);
+                    }
+
+                    gsw.close();
+
+                    Alert a = new Alert(Alert.AlertType.INFORMATION);
+                    a.setTitle("Success");
+                    a.setHeaderText("Successfully exported GIF");
+                    a.setContentText(file.getAbsolutePath());
+                    a.showAndWait();
+                } catch (IOException e) {
+                    Main.log.log(Level.SEVERE, "Unable to create GIF writer", e);
+
+                    Alert a = new Alert(Alert.AlertType.INFORMATION);
+                    a.setTitle("FAILED");
+                    a.setHeaderText("Exception while attempting to export GIF");
+                    a.setContentText(e.getLocalizedMessage());
+                    a.showAndWait();
+                }
             }
         }
     }

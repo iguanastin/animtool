@@ -31,7 +31,6 @@ import java.util.logging.Level;
 
 public class ProjectsController {
 
-    private static final String DARK_CSS = "/fxml/dark.css";
     private static final File configFile = new File("animtool.json");
 
     public StackPane rootPane;
@@ -62,11 +61,11 @@ public class ProjectsController {
     private void initDarkThemeListener() {
         darkTheme.addListener(observable -> {
             if (darkTheme.get()) {
-                if (!rootPane.getScene().getStylesheets().contains(DARK_CSS))
-                    rootPane.getScene().getStylesheets().add(DARK_CSS);
+                if (!rootPane.getScene().getStylesheets().contains(Main.DARK_CSS))
+                    rootPane.getScene().getStylesheets().add(Main.DARK_CSS);
                 themeButton.setText("Light");
             } else {
-                rootPane.getScene().getStylesheets().remove(DARK_CSS);
+                rootPane.getScene().getStylesheets().remove(Main.DARK_CSS);
                 themeButton.setText("Dark");
             }
         });
@@ -183,7 +182,7 @@ public class ProjectsController {
             loader.setControllerFactory(param -> new EditorController(folder));
             Scene scene = new Scene(loader.load());
             scene.getStylesheets().add(Main.COMMON_CSS);
-            if (darkTheme.get()) scene.getStylesheets().add(DARK_CSS);
+            if (darkTheme.get()) scene.getStylesheets().add(Main.DARK_CSS);
             stage.setScene(scene);
             stage.setTitle("AnimTool - " + folder.getAbsolutePath());
             stage.show();

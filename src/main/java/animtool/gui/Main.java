@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 public class Main extends Application {
 
     public static final String COMMON_CSS = "/fxml/common.css";
+    public static final String DARK_CSS = "/fxml/dark.css";
     public static FilenameFilter imageFilter = (dir, name) -> {
         name = name.toLowerCase();
         return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg");
