@@ -89,7 +89,11 @@ public class EditorController {
                 timeline.get().pause();
             }
         });
-
+        frames.addListener((ListChangeListener<? super Frame>) c -> {
+            while (c.next()) {
+                c.getAddedSubList().forEach(o -> o.delayProperty().addListener((observable, oldValue, newValue) -> refreshTimeline()));
+            }
+        });
 
         setFolder(currentFolder);
     }
@@ -148,7 +152,7 @@ public class EditorController {
         File[] images = folder.listFiles(Main.imageFilter);
         for (File file : Objects.requireNonNull(images)) {
             if (Main.imageFilter.accept(file.getParentFile(), file.getName())) {
-                Frame frame = new Frame(file);
+                Frame frame = new Frame(file, () -> 1000 / fps.get());
                 frame.loadImage();
                 frames.add(frame);
             }
@@ -245,15 +249,19 @@ public class EditorController {
         timeline.set(tl);
         tl.setCycleCount(Animation.INDEFINITE);
 
+        int time = 0; // Time counter
         for (int i = 0; i < frames.size(); i++) {
             Frame frame = frames.get(i);
-            tl.getKeyFrames().add(new KeyFrame(Duration.millis(1000 / fps.get() * i), "Frame " + i, event -> {
+            tl.getKeyFrames().add(new KeyFrame(Duration.millis(time), "Frame " + i, event -> {
                 timeLineListView.scrollTo(frame);
                 timeLineListView.getSelectionModel().select(frame);
             }));
+
+            // Time has to be counted in a rolling manner
+            time += frame.getComputedDelay();
         }
-        // Necessary as a sort of cleanup. Without this next line, the last frame never gets any time to show.
-        tl.getKeyFrames().add(new KeyFrame(Duration.millis(1000 / fps.get() * frames.size())));
+        // Event to display last keyframe for correct delay
+        tl.getKeyFrames().add(new KeyFrame(Duration.millis(time)));
 
         if (playing.get()) tl.play();
         else if (!frames.isEmpty()) previewImageView.setImage(frames.get(0).getImage());
@@ -268,7 +276,7 @@ public class EditorController {
         String path = currentFolder.getAbsolutePath();
         if (!path.endsWith("/")) path += "/";
         path += file.getName();
-        Frame tmp = new Frame(new File(path));
+        Frame tmp = new Frame(new File(path), () -> 1000 / fps.get());
         if (frames.contains(tmp)) {
             frames.get(frames.indexOf(tmp)).loadImage();
         }
@@ -284,7 +292,7 @@ public class EditorController {
         String path = currentFolder.getAbsolutePath();
         if (!path.endsWith("/")) path += "/";
         path += file.getName();
-        frames.remove(new Frame(new File(path)));
+        frames.remove(new Frame(new File(path), () -> 1000 / fps.get()));
         Collections.sort(frames);
         refreshTimeline();
         System.out.println("File deleted: " + path);
@@ -300,7 +308,7 @@ public class EditorController {
         if (!path.endsWith("/")) path += "/";
         path += file.getName();
         if (Main.imageFilter.accept(new File(path).getParentFile(), file.getName())) {
-            frames.add(new Frame(new File(path)));
+            frames.add(new Frame(new File(path), () -> 1000 / fps.get()));
             Collections.sort(frames);
             refreshTimeline();
         }
