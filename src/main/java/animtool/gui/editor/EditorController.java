@@ -407,7 +407,7 @@ public class EditorController {
         if (frames.contains(tmp)) {
             frames.get(frames.indexOf(tmp)).loadImage();
         }
-        System.out.println("File modified: " + path);
+        Main.log.info("File modified: " + path);
     }
 
     /**
@@ -422,7 +422,7 @@ public class EditorController {
         frames.remove(new Frame(new File(path), defaultDelay));
         Collections.sort(frames);
         refreshTimeline();
-        System.out.println("File deleted: " + path);
+        Main.log.info("File deleted: " + path);
     }
 
     /**
@@ -439,7 +439,7 @@ public class EditorController {
             Collections.sort(frames);
             refreshTimeline();
         }
-        System.out.println("File created: " + path);
+        Main.log.info("File created: " + path);
     }
 
     public void playButtonOnAction(ActionEvent event) {
