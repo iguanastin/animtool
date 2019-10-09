@@ -62,7 +62,7 @@ public class EditorController {
 
     private final ObjectProperty<Timeline> timeline = new SimpleObjectProperty<>();
     private final BooleanProperty playing = new SimpleBooleanProperty(false);
-    private final IntegerProperty defaultDelay = new SimpleIntegerProperty(125);
+    private final IntegerProperty defaultDelay = new SimpleIntegerProperty(83);
 
     private final ObservableList<Frame> frames = FXCollections.observableArrayList();
 
