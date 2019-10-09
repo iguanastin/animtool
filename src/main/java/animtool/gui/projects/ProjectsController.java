@@ -1,19 +1,18 @@
-package animtool.gui;
+package animtool.gui.projects;
 
+import animtool.gui.Main;
+import animtool.gui.editor.EditorController;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -21,7 +20,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -160,12 +158,13 @@ public class ProjectsController {
 
         try {
             Stage stage = new Stage();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
-            loader.setControllerFactory(param -> new MainController(folder)); // TODO
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/editor.fxml"));
+            loader.setControllerFactory(param -> new EditorController(folder)); // TODO
             Scene scene = new Scene(loader.load());
+            scene.getStylesheets().add("/fxml/common.css");
             if (darkTheme.get()) scene.getStylesheets().add(DARK_CSS);
             stage.setScene(scene);
-            stage.setTitle("AnimTool");
+            stage.setTitle("AnimTool - " + folder.getAbsolutePath());
             stage.show();
         } catch (IOException e) {
             Main.log.log(Level.SEVERE, "Failed to open main stage", e);

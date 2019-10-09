@@ -35,6 +35,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/projects.fxml"));
         Scene scene = new Scene(root);
+        scene.getStylesheets().add("/fxml/common.css");
         primaryStage.setScene(scene);
         primaryStage.setTitle("AnimTool");
         primaryStage.initStyle(StageStyle.UNDECORATED);

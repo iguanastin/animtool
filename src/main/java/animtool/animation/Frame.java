@@ -14,10 +14,12 @@ import java.io.File;
  */
 public class Frame implements Comparable<Frame> {
 
+    private static final int THUMBNAIL_SIZE = 150;
+
     private final File file;
 
     private final ObjectProperty<Image> image = new SimpleObjectProperty<>();
-    private final LongProperty delay = new SimpleLongProperty(-1);
+    private final ObjectProperty<Image> thumbnail = new SimpleObjectProperty<>();
 
 
     public Frame(File file) {
@@ -53,6 +55,21 @@ public class Frame implements Comparable<Frame> {
         return file;
     }
 
+    public synchronized Image getThumbnail() {
+        Image thumb = thumbnail.get();
+        if (thumb == null) {
+            thumb = loadThumbnail();
+        }
+
+        return thumb;
+    }
+
+    private synchronized Image loadThumbnail() {
+        Image thumb = new Image(file.toURI().toString(), THUMBNAIL_SIZE, THUMBNAIL_SIZE, true, true, true);
+        thumbnail.set(thumb);
+        return thumb;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Frame && ((Frame) obj).getFile().equals(getFile());
@@ -70,18 +87,6 @@ public class Frame implements Comparable<Frame> {
         } else {
             return getFile().compareTo(o.getFile());
         }
-    }
-
-    public LongProperty delayProperty() {
-        return delay;
-    }
-
-    public synchronized void setDelay(long delay) {
-        this.delay.set(delay);
-    }
-
-    public synchronized long getDelay() {
-        return delay.get();
     }
 
 }

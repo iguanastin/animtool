@@ -1,0 +1,4 @@
+
+.list-cell:selected {
+    -fx-background: derive(-fx-accent, 50%);
+}

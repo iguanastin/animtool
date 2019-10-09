@@ -101,3 +101,7 @@
 .list-cell:odd {
     -fx-background-color: derive(-fx-control-inner-background, +20%);
 }
+
+.list-cell:selected {
+    -fx-background-color: derive(-fx-accent, 50%);
+}

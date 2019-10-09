@@ -1,14 +1,21 @@
-package animtool.gui;
+package animtool.gui.editor;
 
+import animtool.gui.media.DynamicImageView;
+import animtool.gui.Main;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.stage.DirectoryChooser;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import animtool.animation.Frame;
@@ -16,19 +23,17 @@ import animtool.animation.Frame;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
-public class MainController {
+public class EditorController {
 
+    public BorderPane rootPane;
     public DynamicImageView previewImageView;
-    public Button playPauseButton;
-    public Label animFolderLabel;
-    public ToggleButton alwaysOnTopToggleButton;
-    public TextField fpsTextField;
+    public ListView<Frame> timeLineListView;
+    public VBox controlsVBox;
 
     private WatchService watcher;
     private WatchKey watchKey;
@@ -38,20 +43,39 @@ public class MainController {
     private final BooleanProperty playing = new SimpleBooleanProperty(false);
     private final IntegerProperty fps = new SimpleIntegerProperty(12);
 
-    private final ArrayList<Frame> frames = new ArrayList<>();
+    private final ObservableList<Frame> frames = FXCollections.observableArrayList();
 
 
-    public MainController(File folder) {
+    public EditorController(File folder) {
         currentFolder = folder;
     }
 
     @FXML
     public void initialize() {
         initWatchService();
+        initTimeLineView();
 
-        fps.addListener(observable -> refreshTimeline());
+        fps.addListener((observable, oldValue, newValue) -> refreshTimeline());
+        playing.addListener((observable, oldValue, newValue) -> {
+            if (playing.get()) {
+                timeline.get().play();
+            } else {
+                timeline.get().pause();
+            }
+        });
 
         setFolder(currentFolder);
+    }
+
+    private void initTimeLineView() {
+        frames.addListener((ListChangeListener<? super Frame>) c -> {
+            timeLineListView.getItems().clear();
+            timeLineListView.getItems().addAll(c.getList());
+        });
+        timeLineListView.setCellFactory(param -> new FrameListCell());
+        timeLineListView.getSelectionModel().getSelectedItems().addListener((ListChangeListener<? super Frame>) c -> {
+            if (!c.getList().isEmpty()) previewImageView.setImage(c.getList().get(0).getImage());
+        });
     }
 
     /**
@@ -70,10 +94,7 @@ public class MainController {
      */
     private void loadFramesFromFolder(File folder) {
         frames.clear();
-        File[] images = folder.listFiles((dir, name) -> {
-            String work = name.toLowerCase();
-            return work.endsWith(".png") || work.endsWith(".jpg") || work.endsWith(".jpeg");
-        });
+        File[] images = folder.listFiles(Main.imageFilter);
         for (File file : Objects.requireNonNull(images)) {
             if (Main.imageFilter.accept(file.getParentFile(), file.getName())) {
                 Frame frame = new Frame(file);
@@ -175,9 +196,11 @@ public class MainController {
 
         for (int i = 0; i < frames.size(); i++) {
             Frame frame = frames.get(i);
-            long delay = frame.getDelay();
-            if (delay < 0) delay = 1000 / fps.get();
-            tl.getKeyFrames().add(new KeyFrame(Duration.millis(delay * i), "Frame " + i, event -> previewImageView.setImage(frame.getImage())));
+            tl.getKeyFrames().add(new KeyFrame(Duration.millis(1000 / fps.get() * i), "Frame " + i, event -> {
+                previewImageView.setImage(frame.getImage());
+                timeLineListView.scrollTo(frame);
+                timeLineListView.getSelectionModel().select(frame);
+            }));
         }
 
         if (playing.get()) tl.play();
@@ -239,7 +262,7 @@ public class MainController {
      */
     private boolean updateFramerateFromTextfield() {
         try {
-            int i = Integer.parseInt(fpsTextField.getText());
+            int i = Integer.parseInt("12"); // TODO
             if (i <= 0 || i >= 100) throw new NumberFormatException();
             setFramerate(i);
         } catch (NumberFormatException e) {
@@ -253,38 +276,20 @@ public class MainController {
     }
 
     public void alwaysOnTopToggleOnAction(ActionEvent event) {
-        ((Stage) alwaysOnTopToggleButton.getScene().getWindow()).setAlwaysOnTop(alwaysOnTopToggleButton.isSelected());
+        ((Stage) rootPane.getScene().getWindow()).setAlwaysOnTop(true); // TODO
         event.consume();
     }
 
-    public void playPauseButtonOnAction(ActionEvent event) {
-        event.consume();
-
-        updateFramerateFromTextfield();
-
+    public void playButtonOnAction(ActionEvent event) {
         playing.set(!playing.get());
-        if (playing.get()) {
-            playPauseButton.setText("Pause");
-            timeline.get().play();
-        } else {
-            playPauseButton.setText("Play");
-            timeline.get().pause();
-        }
     }
 
-    public void fpsTextFieldOnAction(ActionEvent event) {
-        if (updateFramerateFromTextfield()) return;
-        event.consume();
+    public void rootPaneOnMouseEntered(MouseEvent event) {
+        rootPane.setBottom(controlsVBox);
     }
 
-    public void browseButtonOnAction(ActionEvent event) {
-        DirectoryChooser dc = new DirectoryChooser();
-        File directory = dc.showDialog(previewImageView.getScene().getWindow());
-        if (directory != null) {
-            setFolder(directory);
-            animFolderLabel.setText(directory.getAbsolutePath());
-        }
-        event.consume();
+    public void rootPaneOnMouseExited(MouseEvent event) {
+        rootPane.setBottom(null);
     }
 
 }

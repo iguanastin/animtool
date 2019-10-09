@@ -1,4 +1,4 @@
-package animtool.gui;
+package animtool.gui.media;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
