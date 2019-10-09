@@ -9,6 +9,8 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -49,6 +51,7 @@ public class EditorController {
     public Button rightButton;
     public ToggleButton pinButton;
     public Button exportButton;
+    public TextField fpsTextField;
 
     private Image playIcon = null;
     private Image pauseIcon = null;
@@ -59,7 +62,7 @@ public class EditorController {
 
     private final ObjectProperty<Timeline> timeline = new SimpleObjectProperty<>();
     private final BooleanProperty playing = new SimpleBooleanProperty(false);
-    private final IntegerProperty fps = new SimpleIntegerProperty(8);
+    private final IntegerProperty defaultDelay = new SimpleIntegerProperty(125);
 
     private final ObservableList<Frame> frames = FXCollections.observableArrayList();
 
@@ -81,7 +84,20 @@ public class EditorController {
         initTimeLineView();
         initIcons();
 
-        fps.addListener((observable, oldValue, newValue) -> refreshTimeline());
+        defaultDelay.addListener((observable, oldValue, newValue) -> fpsTextField.setText(newValue.intValue() + ""));
+        defaultDelay.addListener((observable, oldValue, newValue) -> refreshTimeline());
+        fpsTextField.setText(1000 / defaultDelay.get() + "");
+        fpsTextField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                parseFPSFromTextField();
+            }
+        });
+        fpsTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                fpsTextField.setText(oldValue);
+            }
+        });
+        fpsTextField.setOnAction(event -> parseFPSFromTextField());
         playing.addListener((observable, oldValue, newValue) -> {
             if (playing.get()) {
                 timeline.get().play();
@@ -96,6 +112,22 @@ public class EditorController {
         });
 
         setFolder(currentFolder);
+    }
+
+    private void parseFPSFromTextField() {
+        int fps = 1000 / defaultDelay.get();
+
+        try {
+            int val = Integer.parseInt(fpsTextField.getText());
+
+            if (val > 0 && val <= 1000) {
+                fps = val;
+                defaultDelay.set(1000 / fps);
+            }
+        } catch (NumberFormatException ignore) {
+        }
+
+        fpsTextField.setText(fps + "");
     }
 
     private void initIcons() {
@@ -152,7 +184,7 @@ public class EditorController {
         File[] images = folder.listFiles(Main.imageFilter);
         for (File file : Objects.requireNonNull(images)) {
             if (Main.imageFilter.accept(file.getParentFile(), file.getName())) {
-                Frame frame = new Frame(file, () -> 1000 / fps.get());
+                Frame frame = new Frame(file, defaultDelay);
                 frame.loadImage();
                 frames.add(frame);
             }
@@ -175,6 +207,12 @@ public class EditorController {
             a.setContentText("Unable to register WatchKey: " + folder.getAbsolutePath());
             a.showAndWait();
         }
+    }
+
+    private void close() {
+        // TODO Save config
+
+        Platform.exit();
     }
 
     /**
@@ -228,15 +266,6 @@ public class EditorController {
     }
 
     /**
-     * Sets the framerate of the animation.
-     *
-     * @param fps Framerate in frames per second.
-     */
-    private void setFramerate(int fps) {
-        this.fps.set(fps);
-    }
-
-    /**
      * Refreshes the timeline object with current images.
      */
     private void refreshTimeline() {
@@ -276,7 +305,7 @@ public class EditorController {
         String path = currentFolder.getAbsolutePath();
         if (!path.endsWith("/")) path += "/";
         path += file.getName();
-        Frame tmp = new Frame(new File(path), () -> 1000 / fps.get());
+        Frame tmp = new Frame(new File(path), defaultDelay);
         if (frames.contains(tmp)) {
             frames.get(frames.indexOf(tmp)).loadImage();
         }
@@ -292,7 +321,7 @@ public class EditorController {
         String path = currentFolder.getAbsolutePath();
         if (!path.endsWith("/")) path += "/";
         path += file.getName();
-        frames.remove(new Frame(new File(path), () -> 1000 / fps.get()));
+        frames.remove(new Frame(new File(path), defaultDelay));
         Collections.sort(frames);
         refreshTimeline();
         System.out.println("File deleted: " + path);
@@ -308,7 +337,7 @@ public class EditorController {
         if (!path.endsWith("/")) path += "/";
         path += file.getName();
         if (Main.imageFilter.accept(new File(path).getParentFile(), file.getName())) {
-            frames.add(new Frame(new File(path), () -> 1000 / fps.get()));
+            frames.add(new Frame(new File(path), defaultDelay));
             Collections.sort(frames);
             refreshTimeline();
         }
@@ -354,7 +383,7 @@ public class EditorController {
         File file = fc.showSaveDialog(rootPane.getScene().getWindow());
 
         if (file != null) {
-            GifExportDialog d = new GifExportDialog(1000 / fps.get(), true, GifSequenceWriter.RESTORE_TO_BACKGROUND_DISPOSAL);
+            GifExportDialog d = new GifExportDialog(defaultDelay.get(), true, GifSequenceWriter.RESTORE_TO_BACKGROUND_DISPOSAL);
             Optional<GifExportConfig> result = d.showAndWait();
 
             if (result.isPresent()) {
@@ -388,6 +417,14 @@ public class EditorController {
                     a.setContentText(e.getLocalizedMessage());
                     a.showAndWait();
                 }
+            }
+        }
+    }
+
+    public void rootPaneOnKeyPressed(KeyEvent event) {
+        if (event.isControlDown()) {
+            if (event.getCode() == KeyCode.Q) {
+                close();
             }
         }
     }

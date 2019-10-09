@@ -18,16 +18,16 @@ public class Frame implements Comparable<Frame> {
     public static final int THUMBNAIL_SIZE = 100;
 
     private final File file;
-    private final DefaultDelayCallback delayCallback;
+    private final IntegerProperty defaultDelay;
 
     private final ObjectProperty<Image> image = new SimpleObjectProperty<>();
     private final ObjectProperty<Image> thumbnail = new SimpleObjectProperty<>();
     private final IntegerProperty delay = new SimpleIntegerProperty(-1);
 
 
-    public Frame(File file, DefaultDelayCallback delayCallback) {
+    public Frame(File file, IntegerProperty defaultDelay) {
         this.file = file;
-        this.delayCallback = delayCallback;
+        this.defaultDelay = defaultDelay;
     }
 
     /**
@@ -75,7 +75,11 @@ public class Frame implements Comparable<Frame> {
     }
 
     public synchronized int getDefaultDelay() {
-        return delayCallback.getDefaultDelay();
+        return defaultDelay.get();
+    }
+
+    public IntegerProperty defaultDelayProperty() {
+        return defaultDelay;
     }
 
     public synchronized int getDelay() {

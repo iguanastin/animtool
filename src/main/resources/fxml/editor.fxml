@@ -4,7 +4,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane fx:id="rootPane" onMouseEntered="#rootPaneOnMouseEntered" onMouseExited="#rootPaneOnMouseExited"
+<BorderPane fx:id="rootPane" onKeyPressed="#rootPaneOnKeyPressed" onMouseEntered="#rootPaneOnMouseEntered" onMouseExited="#rootPaneOnMouseExited"
             prefHeight="623.0" prefWidth="873.0" xmlns="http://javafx.com/javafx/8.0.172-ea"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="animtool.gui.editor.EditorController">
     <center>
@@ -31,6 +31,9 @@
                         onAction="#playButtonOnAction" text="Play"/>
                 <Button fx:id="rightButton" focusTraversable="false" mnemonicParsing="false"
                         onAction="#rightButtonOnAction" text="&gt;"/>
+                <Separator orientation="VERTICAL"/>
+                <Label text="FPS:" />
+                <TextField fx:id="fpsTextField" focusTraversable="false"/>
                 <Separator orientation="VERTICAL"/>
                 <ToggleButton fx:id="pinButton" focusTraversable="false" mnemonicParsing="false"
                               onAction="#pinButtonOnAction" text="Pin"/>

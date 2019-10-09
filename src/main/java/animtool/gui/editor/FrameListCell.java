@@ -4,6 +4,7 @@ package animtool.gui.editor;
 import animtool.animation.Frame;
 import animtool.gui.Main;
 import animtool.gui.media.DynamicImageView;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.*;
@@ -25,6 +26,8 @@ public class FrameListCell extends ListCell<Frame> {
     private final TextField delayTextField = new TextField();
     private BorderPane topBorderPane;
 
+    private final ChangeListener<Number> delayListener = (observable, oldValue, newValue) -> delayLabel.setText(newValue.intValue() + "ms");
+
 
     FrameListCell() {
         getStyleClass().addAll(DEFAULT_STYLE_CLASS);
@@ -45,6 +48,11 @@ public class FrameListCell extends ListCell<Frame> {
         });
         delayTextField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) updateItem(getItem(), false);
+        });
+        delayTextField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                updateItem(getItem(), false);
+            }
         });
         delayLabel.setOnMouseClicked(event -> {
             if (getItem() != null) {
@@ -84,6 +92,11 @@ public class FrameListCell extends ListCell<Frame> {
 
     @Override
     protected void updateItem(Frame item, boolean empty) {
+        if (getItem() != null) {
+            getItem().defaultDelayProperty().removeListener(delayListener);
+            getItem().delayProperty().removeListener(delayListener);
+        }
+
         super.updateItem(item, empty);
 
         imageView.setImage(null);
@@ -98,8 +111,10 @@ public class FrameListCell extends ListCell<Frame> {
             topBorderPane.setRight(delayLabel);
             if (item.getDelay() < 1) {
                 delayLabel.setText(item.getDefaultDelay() + "ms");
+                item.defaultDelayProperty().addListener(delayListener);
             } else {
                 delayLabel.setText(item.getDelay() + "ms");
+                item.delayProperty().addListener(delayListener);
             }
         }
     }
