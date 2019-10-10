@@ -36,7 +36,7 @@ public class GifExportDialog extends Dialog<GifExportConfig> {
         setTitle("Export Gif");
 
         TextField delayTextField = new TextField(delay + "");
-        HBox delayHBox = new HBox(5, new Label("Delay:"), delayTextField);
+        HBox delayHBox = new HBox(5, new Label("Default Delay:"), delayTextField);
         delayHBox.setAlignment(Pos.CENTER_LEFT);
 
         CheckBox loopCheckBox = new CheckBox();
@@ -56,7 +56,22 @@ public class GifExportDialog extends Dialog<GifExportConfig> {
         ButtonType ok = new ButtonType("Export", ButtonBar.ButtonData.FINISH);
         ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
         getDialogPane().getButtonTypes().addAll(ok, cancel);
-        setResultConverter(param -> param.equals(ok) ? new GifExportConfig(Integer.parseInt(delayTextField.getText()), loopCheckBox.isSelected(), disposalChoiceBox.getValue()) : null);
+
+        setResultConverter(param -> {
+            if (param.equals(ok)) {
+                int d = delay;
+                try {
+                    int val = Integer.parseInt(delayTextField.getText());
+                    if (val > 0) {
+                        d = val;
+                    }
+                } catch (NumberFormatException ignore) {
+                }
+                return new GifExportConfig(d, loopCheckBox.isSelected(), disposalChoiceBox.getValue());
+            } else {
+                return null;
+            }
+        });
     }
 
 }
