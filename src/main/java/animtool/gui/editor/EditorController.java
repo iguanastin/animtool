@@ -84,7 +84,7 @@ public class EditorController {
         initTimeLineView();
         initIcons();
 
-        defaultDelay.addListener((observable, oldValue, newValue) -> fpsTextField.setText(newValue.intValue() + ""));
+        defaultDelay.addListener((observable, oldValue, newValue) -> fpsTextField.setText(1000 / newValue.intValue() + ""));
         defaultDelay.addListener((observable, oldValue, newValue) -> refreshTimeline());
         fpsTextField.setText(1000 / defaultDelay.get() + "");
         fpsTextField.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -405,6 +405,14 @@ public class EditorController {
         }
     }
 
+    private void openProjectsStage() {
+        try {
+            ProjectsController.open(getClass());
+        } catch (IOException e) {
+            Main.log.log(Level.SEVERE, "Failed to open Projects window", e);
+        }
+    }
+
     /**
      * Called when a file modification event is captured.
      *
@@ -505,11 +513,7 @@ public class EditorController {
                     event.consume();
                     break;
                 case W:
-                    try {
-                        ProjectsController.open(getClass());
-                    } catch (IOException e) {
-                        Main.log.log(Level.SEVERE, "Failed to open Projects window", e);
-                    }
+                    openProjectsStage();
                     // Intentionally falls over into next case
                 case Q:
                     close();
