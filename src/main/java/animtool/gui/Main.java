@@ -1,6 +1,7 @@
 package animtool.gui;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -52,7 +53,7 @@ public class Main extends Application {
 
         // Set log level to severe only with arg
         for (String arg : args) {
-            if (arg.equalsIgnoreCase("-quiet")) {
+            if (arg.equalsIgnoreCase("--quiet")) {
                 log.setLevel(Level.SEVERE);
             }
         }
