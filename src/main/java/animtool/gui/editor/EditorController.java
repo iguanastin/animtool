@@ -111,9 +111,11 @@ public class EditorController {
             }
         });
 
-        setFolder(currentFolder);
+        Platform.runLater(() -> {
+            rootPane.getScene().getWindow().setOnCloseRequest(event -> close());
 
-        Platform.runLater(() -> rootPane.getScene().getWindow().setOnCloseRequest(event -> close()));
+            setFolder(currentFolder);
+        });
     }
 
     private void parseFPSFromTextField() {
@@ -216,10 +218,13 @@ public class EditorController {
         try {
             JSONObject json = new JSONObject(String.join("\n", Files.readAllLines(currentFolder.toPath().resolve("animtoolproject.json"))));
 
-            // Get dark theme if present
-            if (json.has("default-delay")) {
-                defaultDelay.set(json.getInt("default-delay"));
-            }
+            if (json.has("default-delay")) defaultDelay.set(json.getInt("default-delay"));
+            if (json.has("window-x")) rootPane.getScene().getWindow().setX(json.getInt("window-x"));
+            if (json.has("window-y")) rootPane.getScene().getWindow().setY(json.getInt("window-y"));
+            if (json.has("window-width")) rootPane.getScene().getWindow().setWidth(json.getInt("window-width"));
+            if (json.has("window-height")) rootPane.getScene().getWindow().setHeight(json.getInt("window-height"));
+            if (json.has("window-maximized"))
+                ((Stage) rootPane.getScene().getWindow()).setMaximized(json.getBoolean("window-maximized"));
 
             // Get recent folders if present
             if (json.has("frames")) {
@@ -244,6 +249,12 @@ public class EditorController {
     private void saveConfig() throws IOException {
         JSONObject json = new JSONObject();
         json.put("default-delay", defaultDelay.get());
+        json.put("window-x", rootPane.getScene().getWindow().getX());
+        json.put("window-y", rootPane.getScene().getWindow().getY());
+        json.put("window-width", rootPane.getScene().getWindow().getWidth());
+        json.put("window-height", rootPane.getScene().getWindow().getHeight());
+        json.put("window-maximized", ((Stage) rootPane.getScene().getWindow()).isMaximized());
+
         for (Frame frame : frames) {
             JSONObject obj = new JSONObject();
             obj.put("name", frame.getFile().getName());

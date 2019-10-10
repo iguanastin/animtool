@@ -136,15 +136,10 @@ public class ProjectsController {
         try {
             JSONObject json = new JSONObject(String.join("\n", Files.readAllLines(configFile.toPath())));
 
-            // Get last folder if present
-            if (json.has("last_folder")) {
-                lastFolder = new File(json.getString("last_folder"));
-            }
-
-            // Get dark theme if present
-            if (json.has("dark_theme")) {
-                darkTheme.set(json.getBoolean("dark_theme"));
-            }
+            if (json.has("last_folder")) lastFolder = new File(json.getString("last_folder"));
+            if (json.has("dark_theme")) darkTheme.set(json.getBoolean("dark_theme"));
+            if (json.has("window-x")) rootPane.getScene().getWindow().setX(json.getInt("window-x"));
+            if (json.has("window-y")) rootPane.getScene().getWindow().setY(json.getInt("window-y"));
 
             // Get recent folders if present
             if (json.has("recent")) {
@@ -163,6 +158,9 @@ public class ProjectsController {
         JSONObject json = new JSONObject();
         json.put("last_folder", lastFolder.getAbsolutePath());
         json.put("dark_theme", darkTheme.get());
+        json.put("window-x", rootPane.getScene().getWindow().getX());
+        json.put("window-y", rootPane.getScene().getWindow().getY());
+
         recentFolders.forEach(s -> json.append("recent", s));
 
         try (FileWriter fw = new FileWriter(configFile)) {
