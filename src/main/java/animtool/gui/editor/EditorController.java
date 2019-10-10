@@ -397,16 +397,20 @@ public class EditorController {
             if (result.isPresent()) {
                 GifExportConfig config = result.get();
 
-                List<BufferedImage> imgs = new ArrayList<>();
+                Map<Frame, BufferedImage> imgs = new HashMap<>();
                 for (Frame frame : frames) {
-                    imgs.add(SwingFXUtils.fromFXImage(frame.getImage(), null));
+                    imgs.put(frame, SwingFXUtils.fromFXImage(frame.getImage(), null));
                 }
 
                 try (ImageOutputStream ios = ImageIO.createImageOutputStream(file)) {
-                    GifSequenceWriter gsw = new GifSequenceWriter(ios, imgs.get(0).getType(), config.delay, config.loop, config.disposal);
+                    GifSequenceWriter gsw = new GifSequenceWriter(ios, imgs.get(frames.get(0)).getType(), config.delay, config.loop, config.disposal);
 
-                    for (BufferedImage img : imgs) {
-                        gsw.writeToSequence(img);
+                    for (Map.Entry<Frame, BufferedImage> e : imgs.entrySet()) {
+                        if (e.getKey().getDelay() > 0) {
+                            gsw.writeToSequence(e.getValue(), e.getKey().getDelay());
+                        } else {
+                            gsw.writeToSequence(e.getValue());
+                        }
                     }
 
                     gsw.close();
@@ -463,7 +467,6 @@ public class EditorController {
         if (!path.endsWith("/")) path += "/";
         path += file.getName();
         frames.remove(new Frame(new File(path), defaultDelay));
-        Collections.sort(frames);
         refreshTimeline();
         Main.log.info("File deleted: " + path);
     }
