@@ -551,4 +551,8 @@ public class EditorController {
         }
     }
 
+    public void previewImageViewMouseClicked(MouseEvent event) {
+        playing.set(!playing.get());
+    }
+
 }
