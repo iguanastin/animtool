@@ -29,6 +29,7 @@ import animtool.export.GifSequenceWriter;
 import animtool.gui.Main;
 import animtool.gui.media.DynamicImageView;
 import animtool.gui.projects.ProjectsController;
+import animtool.animation.FrameComparator;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -218,7 +219,7 @@ public class EditorController {
                 frames.add(frame);
             }
         }
-        Collections.sort(frames);
+        frames.sort(new FrameComparator());
         refreshTimeline();
     }
 
