@@ -67,6 +67,8 @@ import static java.nio.file.StandardWatchEventKinds.*;
 
 public class EditorController {
 
+    private static final int DEFAULT_DELAY = 83;
+
     public BorderPane rootPane;
     public DynamicImageView previewImageView;
     public ListView<Frame> timeLineListView;
@@ -77,6 +79,7 @@ public class EditorController {
     public ToggleButton pinButton;
     public Button exportButton;
     public TextField fpsTextField;
+    public MenuBar menuBar;
 
     private Image playIcon = null;
     private Image pauseIcon = null;
@@ -87,7 +90,7 @@ public class EditorController {
 
     private final ObjectProperty<Timeline> timeline = new SimpleObjectProperty<>();
     private final BooleanProperty playing = new SimpleBooleanProperty(false);
-    private final IntegerProperty defaultDelay = new SimpleIntegerProperty(83);
+    private final IntegerProperty defaultDelay = new SimpleIntegerProperty(DEFAULT_DELAY);
 
     private final ObservableList<Frame> frames = FXCollections.observableArrayList();
 
@@ -137,9 +140,28 @@ public class EditorController {
         });
 
         Platform.runLater(() -> {
+            initAltTabbingFix();
+
             rootPane.getScene().getWindow().setOnCloseRequest(event -> close());
 
             setFolder(currentFolder);
+        });
+    }
+
+    private void initAltTabbingFix() {
+        rootPane.getScene().addEventFilter(KeyEvent.KEY_RELEASED, event -> {
+            // Workaround for alt-tabbing correctly
+            if (event.getCode() == KeyCode.ALT) {
+                if (menuBar.isFocused()) {
+                    rootPane.requestFocus();
+                } else {
+                    menuBar.requestFocus();
+                }
+                event.consume();
+            }
+        });
+        rootPane.getScene().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ALT) event.consume();
         });
     }
 
@@ -495,6 +517,7 @@ public class EditorController {
 
     public void rootPaneOnMouseEntered(MouseEvent event) {
         rootPane.setBottom(controlsVBox);
+        rootPane.setTop(menuBar);
 
         TranslateTransition tt = new TranslateTransition(Duration.millis(100), controlsVBox);
         tt.setFromY(controlsVBox.getHeight());
@@ -506,7 +529,10 @@ public class EditorController {
         TranslateTransition tt = new TranslateTransition(Duration.millis(100), controlsVBox);
         tt.setFromY(0);
         tt.setToY(controlsVBox.getHeight());
-        tt.setOnFinished(event1 -> rootPane.setBottom(null));
+        tt.setOnFinished(event1 -> {
+            rootPane.setBottom(null);
+            rootPane.setTop(null);
+        });
         tt.playFromStart();
     }
 
@@ -553,6 +579,32 @@ public class EditorController {
 
     public void previewImageViewMouseClicked(MouseEvent event) {
         playing.set(!playing.get());
+    }
+
+    public void menuBarCloseOnAction(ActionEvent event) {
+        try {
+            ProjectsController.open(getClass());
+        } catch (IOException e) {
+            Main.log.log(Level.SEVERE, "Failed to open Projects stage", e);
+        }
+        close();
+    }
+
+    public void menuBarExitOnAction(ActionEvent event) {
+        close();
+    }
+
+    public void menuBarExportOnAction(ActionEvent event) {
+        showExportDialog();
+    }
+
+    public void menuBarDefaultsOnAction(ActionEvent event) {
+        frames.forEach(frame -> frame.setDelay(-1));
+        defaultDelay.set(DEFAULT_DELAY);
+    }
+
+    public void menuBarAboutOnAction(ActionEvent event) {
+        // TODO
     }
 
 }

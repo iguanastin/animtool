@@ -50,7 +50,8 @@ public class Main extends Application {
     public static final String COMMON_CSS = "/fxml/common.css";
     public static final String DARK_CSS = "/fxml/dark.css";
     public static final String PROJECTS_FXML = "/fxml/projects.fxml";
-    public static final String TITLE = "AnimTool";
+    public static final String VERSION = "v1.0";
+    public static final String TITLE = "AnimTool " + VERSION;
 
     public static FilenameFilter imageFilter = (dir, name) -> {
         name = name.toLowerCase();

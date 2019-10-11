@@ -52,15 +52,7 @@ public class FrameListCell extends ListCell<Frame> {
     private final TextField delayTextField = new TextField();
     private BorderPane topBorderPane;
 
-    private final ChangeListener<Number> delayListener = (observable, oldValue, newValue) -> {
-        if (newValue.intValue() > 0) {
-            delayLabel.setText(newValue.intValue() + "ms");
-            if (!delayLabel.getStyleClass().contains(CUSTOM_DELAY_LABEL_STYLE_CLASS)) delayLabel.getStyleClass().add(CUSTOM_DELAY_LABEL_STYLE_CLASS);
-        } else {
-            delayLabel.setText(getItem().getDefaultDelay() + "ms");
-            delayLabel.getStyleClass().remove(CUSTOM_DELAY_LABEL_STYLE_CLASS);
-        }
-    };
+    private final ChangeListener<Number> delayListener = (observable, oldValue, newValue) -> updateItemUtil(getItem());
 
 
     FrameListCell() {
@@ -155,6 +147,10 @@ public class FrameListCell extends ListCell<Frame> {
                 item.delayProperty().addListener(delayListener);
             }
         }
+    }
+
+    private void updateItemUtil(Frame item) {
+        updateItem(item, false);
     }
 
 }
