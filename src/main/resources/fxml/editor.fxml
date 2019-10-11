@@ -84,6 +84,7 @@
             </Menu>
             <Menu mnemonicParsing="false" text="Help">
                 <MenuItem mnemonicParsing="false" onAction="#menuBarAboutOnAction" text="About" />
+            <MenuItem mnemonicParsing="false" onAction="#menuBarHelpOnAction" text="Help" />
             </Menu>
         </MenuBar>
     </top>

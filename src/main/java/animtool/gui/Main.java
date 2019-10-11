@@ -50,8 +50,12 @@ public class Main extends Application {
     public static final String COMMON_CSS = "/fxml/common.css";
     public static final String DARK_CSS = "/fxml/dark.css";
     public static final String PROJECTS_FXML = "/fxml/projects.fxml";
+    public static final String EDITOR_FXML = "/fxml/editor.fxml";
+    public static final String ABOUT_FXML = "/fxml/about.fxml";
     public static final String VERSION = "v1.0";
     public static final String TITLE = "AnimTool " + VERSION;
+    public static final String GITHUB = "https://github.com/iguanastin/animtool";
+    public static final File LOG_FILE = new File("animtool.log");
 
     public static FilenameFilter imageFilter = (dir, name) -> {
         name = name.toLowerCase();
@@ -59,7 +63,6 @@ public class Main extends Application {
     };
 
     public static final Logger log = Logger.getGlobal();
-    private static final String logFilePath = "animtool.log";
 
 
     public void start(Stage primaryStage) throws Exception {
@@ -105,11 +108,11 @@ public class Main extends Application {
 
     private static void initLogger() {
         // Clear log file
-        if (!new File(logFilePath).delete())
-            Main.log.warning(String.format("Could not clear log file: %s", logFilePath));
+        if (!LOG_FILE.delete())
+            Main.log.warning(String.format("Could not clear log file: %s", LOG_FILE.getAbsolutePath()));
         try {
-            if (!new File(logFilePath).createNewFile())
-                Main.log.warning(String.format("Could not create new log file: %s", logFilePath));
+            if (!LOG_FILE.createNewFile())
+                Main.log.warning(String.format("Could not create new log file: %s", LOG_FILE.getAbsolutePath()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -138,9 +141,9 @@ public class Main extends Application {
                 }
                 str.append("\n");
                 try {
-                    Files.write(Paths.get(logFilePath), str.toString().getBytes(), StandardOpenOption.APPEND);
+                    Files.write(LOG_FILE.toPath(), str.toString().getBytes(), StandardOpenOption.APPEND);
                 } catch (IOException e) {
-                    System.err.println(String.format("Failed to write log to file: %s", logFilePath));
+                    System.err.println(String.format("Failed to write log to file: %s", LOG_FILE.getAbsolutePath()));
                 }
             }
 

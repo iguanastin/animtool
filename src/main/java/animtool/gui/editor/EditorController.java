@@ -39,6 +39,9 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -604,6 +607,22 @@ public class EditorController {
     }
 
     public void menuBarAboutOnAction(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource(Main.ABOUT_FXML));
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(Main.COMMON_CSS);
+            if (rootPane.getScene().getStylesheets().contains(Main.DARK_CSS)) scene.getStylesheets().add(Main.DARK_CSS);
+            Stage stage = new Stage();
+            stage.setTitle("About");
+            stage.setScene(scene);
+            stage.showAndWait();
+        } catch (IOException e) {
+            Main.log.log(Level.SEVERE, "Failed to open About stage", e);
+        }
+
+    }
+
+    public void menuBarHelpOnAction(ActionEvent event) {
         // TODO
     }
 

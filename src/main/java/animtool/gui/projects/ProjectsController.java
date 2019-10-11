@@ -211,7 +211,7 @@ public class ProjectsController {
 
         try {
             Stage stage = new Stage();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/editor.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(Main.EDITOR_FXML));
             loader.setControllerFactory(param -> new EditorController(folder));
             Scene scene = new Scene(loader.load());
             scene.getStylesheets().add(Main.COMMON_CSS);

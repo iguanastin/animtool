@@ -109,3 +109,7 @@
 .custom-delay-label {
     -fx-text-fill: yellow;
 }
+
+.hyperlink {
+    -fx-accent: lightblue;
+}
