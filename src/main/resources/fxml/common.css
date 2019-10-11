@@ -3,6 +3,10 @@
     -fx-background: derive(-fx-accent, 50%);
 }
 
+.delay-label {
+    -fx-cursor: hand;
+}
+
 .custom-delay-label {
     -fx-text-fill: red;
 }

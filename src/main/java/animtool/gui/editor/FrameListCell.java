@@ -45,6 +45,7 @@ public class FrameListCell extends ListCell<Frame> {
 
     private static final String DEFAULT_STYLE_CLASS = "frame-list-cell";
     private static final String CUSTOM_DELAY_LABEL_STYLE_CLASS = "custom-delay-label";
+    private static final String DELAY_LABEL_STYLE_CLASS = "delay-label";
 
     private final DynamicImageView imageView = new DynamicImageView();
     private final Label indexLabel = new Label(), delayLabel = new Label();
@@ -95,6 +96,7 @@ public class FrameListCell extends ListCell<Frame> {
                 delayTextField.selectAll();
             }
         });
+        delayLabel.getStyleClass().add(DELAY_LABEL_STYLE_CLASS);
         setGraphic(new BorderPane(bp, topBorderPane, null, null, null));
     }
 
