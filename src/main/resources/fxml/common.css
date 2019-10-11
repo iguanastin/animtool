@@ -2,3 +2,7 @@
 .list-cell:selected {
     -fx-background: derive(-fx-accent, 50%);
 }
+
+.custom-delay-label {
+    -fx-text-fill: red;
+}

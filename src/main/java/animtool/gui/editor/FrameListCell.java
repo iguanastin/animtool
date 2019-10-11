@@ -31,8 +31,8 @@ import animtool.gui.media.DynamicImageView;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.*;
 import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 
@@ -44,6 +44,7 @@ import java.util.logging.Level;
 public class FrameListCell extends ListCell<Frame> {
 
     private static final String DEFAULT_STYLE_CLASS = "frame-list-cell";
+    private static final String CUSTOM_DELAY_LABEL_STYLE_CLASS = "custom-delay-label";
 
     private final DynamicImageView imageView = new DynamicImageView();
     private final Label indexLabel = new Label(), delayLabel = new Label();
@@ -53,8 +54,10 @@ public class FrameListCell extends ListCell<Frame> {
     private final ChangeListener<Number> delayListener = (observable, oldValue, newValue) -> {
         if (newValue.intValue() > 0) {
             delayLabel.setText(newValue.intValue() + "ms");
+            if (!delayLabel.getStyleClass().contains(CUSTOM_DELAY_LABEL_STYLE_CLASS)) delayLabel.getStyleClass().add(CUSTOM_DELAY_LABEL_STYLE_CLASS);
         } else {
             delayLabel.setText(getItem().getDefaultDelay() + "ms");
+            delayLabel.getStyleClass().remove(CUSTOM_DELAY_LABEL_STYLE_CLASS);
         }
     };
 
@@ -99,6 +102,9 @@ public class FrameListCell extends ListCell<Frame> {
         setOnContextMenuRequested(event -> {
             Frame item = getItem();
             if (item != null) {
+                MenuItem defaultDelay = new MenuItem("Default Delay");
+                defaultDelay.setOnAction(event1 -> item.setDelay(-1));
+
                 MenuItem copyPath = new MenuItem("Copy Path");
                 copyPath.setOnAction(event1 -> {
                     StringSelection selection = new StringSelection(item.getFile().getAbsolutePath());
@@ -113,9 +119,6 @@ public class FrameListCell extends ListCell<Frame> {
                         Main.log.log(Level.WARNING, "Unable to open file in desktop", e);
                     }
                 });
-
-                MenuItem defaultDelay = new MenuItem("Default Delay");
-                defaultDelay.setOnAction(event1 -> item.setDelay(-1));
 
                 ContextMenu cm = new ContextMenu(defaultDelay, new SeparatorMenuItem(), copyPath, openFolder);
                 cm.show(this, event.getScreenX(), event.getScreenY());
@@ -142,9 +145,11 @@ public class FrameListCell extends ListCell<Frame> {
             topBorderPane.setRight(delayLabel);
             if (item.getDelay() < 1) {
                 delayLabel.setText(item.getDefaultDelay() + "ms");
+                delayLabel.getStyleClass().remove(CUSTOM_DELAY_LABEL_STYLE_CLASS);
                 item.defaultDelayProperty().addListener(delayListener);
             } else {
                 delayLabel.setText(item.getDelay() + "ms");
+                if (!delayLabel.getStyleClass().contains(CUSTOM_DELAY_LABEL_STYLE_CLASS)) delayLabel.getStyleClass().add(CUSTOM_DELAY_LABEL_STYLE_CLASS);
                 item.delayProperty().addListener(delayListener);
             }
         }
