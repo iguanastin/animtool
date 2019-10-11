@@ -25,22 +25,22 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Hyperlink?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
-<VBox alignment="CENTER" prefHeight="293.0" prefWidth="371.0" spacing="5.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="animtool.gui.help.AboutController">
+<VBox onKeyPressed="#rootPaneKeyPressed" fx:id="rootPane" alignment="CENTER" prefHeight="293.0" prefWidth="371.0"
+      spacing="5.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="animtool.gui.help.AboutController">
     <padding>
-        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0"/>
     </padding>
     <Label text="AnimTool">
         <font>
-            <Font size="18.0" />
+            <Font size="18.0"/>
         </font>
     </Label>
-    <Label fx:id="versionLabel" text="v#.#" />
-   <Hyperlink fx:id="githubHyperlink" onAction="#openGithubOnAction" text="github url" />
-   <Button mnemonicParsing="false" onAction="#openLogButtonOnAction" text="Open log file" />
+    <Label fx:id="versionLabel" text="v#.#"/>
+    <Hyperlink fx:id="discordHyperlink" onAction="#basicHyperlinkOnAction" text="discord"/>
+    <Hyperlink fx:id="githubHyperlink" onAction="#basicHyperlinkOnAction" text="github"/>
+    <Button mnemonicParsing="false" onAction="#openLogButtonOnAction" text="Open log file"/>
 </VBox>

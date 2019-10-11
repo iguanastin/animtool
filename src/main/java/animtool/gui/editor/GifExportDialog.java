@@ -30,9 +30,19 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class GifExportDialog extends Dialog<GifExportConfig> {
 
+    private final Map<String, String> disposalMap = new HashMap<>();
+
+
     public GifExportDialog(int delay, boolean loop, String disposalMethod) {
+        disposalMap.put("Do nothing", GifSequenceWriter.NONE_DISPOSAL);
+        disposalMap.put("Restore to background", GifSequenceWriter.RESTORE_TO_BACKGROUND_DISPOSAL);
+        disposalMap.put("Restore to previous", GifSequenceWriter.RESTORE_TO_PREVIOUS_DISPOSAL);
+
         setTitle("Export Gif");
 
         TextField delayTextField = new TextField(delay + "");
@@ -45,8 +55,11 @@ public class GifExportDialog extends Dialog<GifExportConfig> {
         loopHBox.setAlignment(Pos.CENTER_LEFT);
 
         ChoiceBox<String> disposalChoiceBox = new ChoiceBox<>();
-        disposalChoiceBox.getItems().addAll(GifSequenceWriter.NONE_DISPOSAL, GifSequenceWriter.RESTORE_TO_BACKGROUND_DISPOSAL, GifSequenceWriter.RESTORE_TO_PREVIOUS_DISPOSAL, GifSequenceWriter.UNDEFINED_DISPOSAL_METHOD_4, GifSequenceWriter.UNDEFINED_DISPOSAL_METHOD_5, GifSequenceWriter.UNDEFINED_DISPOSAL_METHOD_6, GifSequenceWriter.UNDEFINED_DISPOSAL_METHOD_6, GifSequenceWriter.UNDEFINED_DISPOSAL_METHOD_7);
-        disposalChoiceBox.getSelectionModel().select(disposalMethod);
+        disposalChoiceBox.getItems().addAll(disposalMap.keySet());
+        for (Map.Entry<String, String> entry : disposalMap.entrySet()) {
+            if (entry.getKey().equals(disposalMethod)) disposalChoiceBox.getSelectionModel().select(entry.getKey());
+        }
+        if (disposalChoiceBox.getSelectionModel().isEmpty()) disposalChoiceBox.getSelectionModel().selectFirst();
         HBox disposalHBox = new HBox(5, new Label("Disposal:"), disposalChoiceBox);
         disposalHBox.setAlignment(Pos.CENTER_LEFT);
 
@@ -67,7 +80,7 @@ public class GifExportDialog extends Dialog<GifExportConfig> {
                     }
                 } catch (NumberFormatException ignore) {
                 }
-                return new GifExportConfig(d, loopCheckBox.isSelected(), disposalChoiceBox.getValue());
+                return new GifExportConfig(d, loopCheckBox.isSelected(), disposalMap.get(disposalChoiceBox.getValue()));
             } else {
                 return null;
             }

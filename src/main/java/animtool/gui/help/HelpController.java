@@ -31,10 +31,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -42,38 +41,32 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.logging.Level;
 
-public class AboutController {
+public class HelpController {
 
-    public VBox rootPane;
-    public Label versionLabel;
-    public Hyperlink githubHyperlink;
+    public ScrollPane rootPane;
     public Hyperlink discordHyperlink;
+    public Hyperlink githubHyperlink;
 
 
     @FXML
     public void initialize() {
-        versionLabel.setText(Main.VERSION);
         discordHyperlink.setText(Main.DISCORD);
         githubHyperlink.setText(Main.GITHUB);
     }
 
     public static void open(Class context, boolean dark) throws IOException {
-        Parent root = FXMLLoader.load(context.getResource(Main.ABOUT_FXML));
+        Parent root = FXMLLoader.load(context.getResource(Main.HELP_FXML));
         Scene scene = new Scene(root);
         scene.getStylesheets().add(Main.COMMON_CSS);
         if (dark) scene.getStylesheets().add(Main.DARK_CSS);
         Stage stage = new Stage();
-        stage.setTitle("About");
+        stage.setTitle("Help");
         stage.setScene(scene);
         stage.show();
     }
 
-    public void openLogButtonOnAction(ActionEvent event) {
-        try {
-            Desktop.getDesktop().open(Main.LOG_FILE);
-        } catch (IOException e) {
-            Main.log.log(Level.SEVERE, "Failed to open log file", e);
-        }
+    private void close() {
+        ((Stage) rootPane.getScene().getWindow()).close();
     }
 
     public void basicHyperlinkOnAction(ActionEvent event) {
@@ -81,15 +74,11 @@ public class AboutController {
         try {
             Desktop.getDesktop().browse(URI.create(url));
         } catch (IOException e) {
-            Main.log.log(Level.SEVERE, "Failed to browse URL: " + url, e);
+            Main.log.log(Level.SEVERE, "Unable to browse URL: " + url, e);
         }
     }
 
-    private void close() {
-        ((Stage) rootPane.getScene().getWindow()).close();
-    }
-
-    public void rootPaneKeyPressed(KeyEvent event) {
+    public void rootPaneOnKeyPressed(KeyEvent event) {
         if (event.isShortcutDown()) {
             switch (event.getCode()) {
                 case W:
@@ -100,7 +89,6 @@ public class AboutController {
             }
         } else if (event.getCode() == KeyCode.ESCAPE) {
             close();
-            event.consume();
         }
     }
 

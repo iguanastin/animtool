@@ -26,6 +26,8 @@ package animtool.gui.projects;
 
 import animtool.gui.Main;
 import animtool.gui.editor.EditorController;
+import animtool.gui.help.AboutController;
+import animtool.gui.help.HelpController;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -89,10 +91,10 @@ public class ProjectsController {
             if (darkTheme.get()) {
                 if (!rootPane.getScene().getStylesheets().contains(Main.DARK_CSS))
                     rootPane.getScene().getStylesheets().add(Main.DARK_CSS);
-                themeButton.setText("Light");
+                themeButton.setText("Light Theme");
             } else {
                 rootPane.getScene().getStylesheets().remove(Main.DARK_CSS);
-                themeButton.setText("Dark");
+                themeButton.setText("Dark Theme");
             }
         });
     }
@@ -250,6 +252,22 @@ public class ProjectsController {
                     event.consume();
                     break;
             }
+        }
+    }
+
+    public void helpButtonOnAction(ActionEvent event) {
+        try {
+            HelpController.open(getClass(), darkTheme.get());
+        } catch (IOException e) {
+            Main.log.log(Level.SEVERE, "Failed to open Help stage", e);
+        }
+    }
+
+    public void aboutButtonOnAction(ActionEvent event) {
+        try {
+            AboutController.open(getClass(), darkTheme.get());
+        } catch (IOException e) {
+            Main.log.log(Level.SEVERE, "Failed to open About stage", e);
         }
     }
 

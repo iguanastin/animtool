@@ -27,6 +27,8 @@ package animtool.gui.editor;
 import animtool.animation.Frame;
 import animtool.export.GifSequenceWriter;
 import animtool.gui.Main;
+import animtool.gui.help.AboutController;
+import animtool.gui.help.HelpController;
 import animtool.gui.media.DynamicImageView;
 import animtool.gui.projects.ProjectsController;
 import animtool.animation.FrameComparator;
@@ -608,22 +610,18 @@ public class EditorController {
 
     public void menuBarAboutOnAction(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(Main.ABOUT_FXML));
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(Main.COMMON_CSS);
-            if (rootPane.getScene().getStylesheets().contains(Main.DARK_CSS)) scene.getStylesheets().add(Main.DARK_CSS);
-            Stage stage = new Stage();
-            stage.setTitle("About");
-            stage.setScene(scene);
-            stage.showAndWait();
+            AboutController.open(getClass(), rootPane.getScene().getStylesheets().contains(Main.DARK_CSS));
         } catch (IOException e) {
             Main.log.log(Level.SEVERE, "Failed to open About stage", e);
         }
-
     }
 
     public void menuBarHelpOnAction(ActionEvent event) {
-        // TODO
+        try {
+            HelpController.open(getClass(), rootPane.getScene().getStylesheets().contains(Main.DARK_CSS));
+        } catch (IOException e) {
+            Main.log.log(Level.SEVERE, "Failed to open Help stage", e);
+        }
     }
 
 }
