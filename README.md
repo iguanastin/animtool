@@ -23,7 +23,7 @@ Windows, MacOS, AND Linux are supported.
 
 The latest release can be found on the [releases](/releases) page. Download the `animtool-#.#-jar-with-dependencies.jar` file and run it with Java 8.
 
-## Build it yourself
+## Or build it yourself
 1. Clone this repo
 2. Run: `mvn package`
 3. Maven will build a jar with the dependencies in the `target/` folder
