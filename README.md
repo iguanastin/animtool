@@ -16,12 +16,12 @@ NOTE: This software is *NOT* a standalone animation suite; it's a way to use you
 ## Questions/suggestions/bugs
 If you have questions, suggestions, found a bug, need help, etc. Join the [Discord server](https://discord.gg/yYegyr2) for this project!
 
-## [Download](/releases)
+## [Download](https://github.com/iguanastin/animtool/releases)
 Windows, MacOS, AND Linux are supported.
 
 ##### PLEASE NOTE: Java 8 is required to run this program.
 
-The latest release can be found on the [releases](/releases) page. Download the `animtool-#.#-jar-with-dependencies.jar` file and run it with Java 8.
+The latest release can be found on the [releases](https://github.com/iguanastin/animtool/releases) page. Download the `animtool-#.#-jar-with-dependencies.jar` file and run it with Java 8.
 
 ## Or build it yourself
 1. Clone this repo
