@@ -29,7 +29,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
@@ -56,13 +57,14 @@ public class HelpController {
 
     public static void open(Class context, boolean dark) throws IOException {
         Parent root = FXMLLoader.load(context.getResource(Main.HELP_FXML));
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(Main.COMMON_CSS);
-        if (dark) scene.getStylesheets().add(Main.DARK_CSS);
-        Stage stage = new Stage();
-        stage.setTitle("Help");
-        stage.setScene(scene);
-        stage.show();
+        javafx.scene.control.Dialog d = new Dialog();
+        d.setTitle("Help");
+        d.getDialogPane().setContent(root);
+        d.getDialogPane().getStylesheets().add(Main.COMMON_CSS);
+        if (dark) d.getDialogPane().getStylesheets().add(Main.DARK_CSS);
+        d.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        ((Stage) d.getDialogPane().getScene().getWindow()).getIcons().addAll(Main.ICONS);
+        d.showAndWait();
     }
 
     private void close() {

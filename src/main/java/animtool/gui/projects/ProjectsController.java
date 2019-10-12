@@ -220,6 +220,7 @@ public class ProjectsController {
             if (darkTheme.get()) scene.getStylesheets().add(Main.DARK_CSS);
             stage.setScene(scene);
             stage.setTitle("AnimTool - " + folder.getAbsolutePath());
+            stage.getIcons().addAll(Main.ICONS);
             stage.show();
         } catch (IOException e) {
             Main.log.log(Level.SEVERE, "Failed to open main stage", e);

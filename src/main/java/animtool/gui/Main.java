@@ -28,6 +28,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -36,9 +37,10 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -66,14 +68,19 @@ public class Main extends Application {
 
     public static final Logger log = Logger.getGlobal();
 
+    public static final List<Image> ICONS = new ArrayList<>();
+
 
     public void start(Stage primaryStage) throws Exception {
+        ICONS.addAll(loadIcons());
+
         Parent root = FXMLLoader.load(getClass().getResource(PROJECTS_FXML));
         Scene scene = new Scene(root);
         scene.getStylesheets().add(COMMON_CSS);
         primaryStage.setScene(scene);
         primaryStage.setTitle(TITLE);
         primaryStage.initStyle(StageStyle.UNDECORATED);
+        primaryStage.getIcons().addAll(ICONS);
         primaryStage.show();
     }
 
@@ -106,6 +113,29 @@ public class Main extends Application {
         // Launch application
         log.info("Starting JFX Application...");
         launch(args);
+    }
+
+    private List<Image> loadIcons() {
+        List<Image> icons = new ArrayList<>();
+
+        try {
+            icons.add(new Image(getClass().getResource("/icons/window/128.png").toString()));
+        } catch (NullPointerException ignore) {
+        }
+        try {
+            icons.add(new Image(getClass().getResource("/icons/window/64.png").toString()));
+        } catch (NullPointerException ignore) {
+        }
+        try {
+            icons.add(new Image(getClass().getResource("/icons/window/32.png").toString()));
+        } catch (NullPointerException ignore) {
+        }
+        try {
+            icons.add(new Image(getClass().getResource("/icons/window/16.png").toString()));
+        } catch (NullPointerException ignore) {
+        }
+
+        return icons;
     }
 
     private static void initLogger() {
