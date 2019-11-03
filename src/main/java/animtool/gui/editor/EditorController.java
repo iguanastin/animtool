@@ -435,11 +435,11 @@ public class EditorController {
                 try (ImageOutputStream ios = ImageIO.createImageOutputStream(file)) {
                     GifSequenceWriter gsw = new GifSequenceWriter(ios, imgs.get(frames.get(0)).getType(), config.delay, config.loop, config.disposal);
 
-                    for (Map.Entry<Frame, BufferedImage> e : imgs.entrySet()) {
-                        if (e.getKey().getDelay() > 0) {
-                            gsw.writeToSequence(e.getValue(), e.getKey().getDelay());
+                    for (Frame frame : frames) {
+                        if (frame.getDelay() > 0) {
+                            gsw.writeToSequence(imgs.get(frame), frame.getDelay());
                         } else {
-                            gsw.writeToSequence(e.getValue());
+                            gsw.writeToSequence(imgs.get(frame));
                         }
                     }
 
