@@ -99,6 +99,8 @@ public class EditorController {
 
     private final ObservableList<Frame> frames = FXCollections.observableArrayList();
 
+    private final FrameComparator frameComparator = new FrameComparator();
+
 
     public EditorController(File folder) {
         currentFolder = folder;
@@ -246,7 +248,7 @@ public class EditorController {
                 frames.add(frame);
             }
         }
-        frames.sort(new FrameComparator());
+        frames.sort(frameComparator);
         refreshTimeline();
     }
 
@@ -510,7 +512,7 @@ public class EditorController {
         path += file.getName();
         if (Main.imageFilter.accept(new File(path).getParentFile(), file.getName())) {
             frames.add(new Frame(new File(path), defaultDelay));
-            Collections.sort(frames);
+            frames.sort(frameComparator);
             refreshTimeline();
         }
         Main.log.info("File created: " + path);
