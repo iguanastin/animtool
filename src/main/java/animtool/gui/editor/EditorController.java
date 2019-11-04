@@ -401,6 +401,8 @@ public class EditorController {
                     }
                 } catch (InterruptedException e) {
                     Main.log.log(Level.WARNING, "Interrupted watch service", e);
+                } catch (ClosedWatchServiceException e) {
+                    Main.log.info("Watch service closed while waiting for watch key (expected)");
                 }
             });
             t.setDaemon(true);
