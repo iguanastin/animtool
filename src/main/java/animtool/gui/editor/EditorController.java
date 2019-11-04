@@ -66,6 +66,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import static java.nio.file.StandardWatchEventKinds.*;
@@ -108,13 +110,6 @@ public class EditorController {
 
     @FXML
     public void initialize() {
-        rootPane.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            if (event.getCode() == KeyCode.SPACE) {
-                playing.set(!playing.get());
-                event.consume();
-            }
-        });
-
         initWatchService();
         initTimeLineView();
         initIcons();
@@ -147,6 +142,29 @@ public class EditorController {
         });
 
         Platform.runLater(() -> {
+            rootPane.getScene().getWindow().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                if (event.getCode() == KeyCode.SPACE) {
+                    playing.set(!playing.get());
+                    event.consume();
+                }
+                if (event.isShortcutDown()) {
+                    switch (event.getCode()) {
+                        case E:
+                        case S:
+                            showExportDialog();
+                            event.consume();
+                            break;
+                        case W:
+                            openProjectsStage();
+                            // Intentionally falls over into next case
+                        case Q:
+                            close();
+                            event.consume();
+                            break;
+                    }
+                }
+            });
+
             initAltTabbingFix();
 
             rootPane.getScene().getWindow().setOnCloseRequest(event -> close());
@@ -328,7 +346,26 @@ public class EditorController {
             Main.log.log(Level.SEVERE, "Failed to save project config file", e);
         }
 
+        try {
+            watcher.close();
+        } catch (IOException e) {
+            Main.log.log(Level.SEVERE, "Failed to close filesystem watch service", e);
+        }
+        if (timeline.get() != null) timeline.get().stop();
         ((Stage) rootPane.getScene().getWindow()).close();
+    }
+
+    private void waitForImageToLoad(Image img, long timeout, TimeUnit timeUnit) {
+        if (img.isBackgroundLoading() && img.getProgress() != 1) {
+            CountDownLatch cdl = new CountDownLatch(1);
+            img.progressProperty().addListener((observable, oldValue, newValue) -> {
+                if (img.isError() || newValue.doubleValue() == 1) cdl.countDown();
+            });
+            try {
+                cdl.await(timeout, timeUnit);
+            } catch (InterruptedException ignore) {
+            }
+        }
     }
 
     /**
@@ -363,12 +400,7 @@ public class EditorController {
                         key.reset();
                     }
                 } catch (InterruptedException e) {
-                    Platform.runLater(() -> {
-                        Alert a = new Alert(Alert.AlertType.ERROR);
-                        a.setTitle("Error running WatchService thread");
-                        a.setContentText(e.getLocalizedMessage());
-                        a.showAndWait();
-                    });
+                    Main.log.log(Level.WARNING, "Interrupted watch service", e);
                 }
             });
             t.setDaemon(true);
@@ -429,7 +461,18 @@ public class EditorController {
 
                 Map<Frame, BufferedImage> imgs = new HashMap<>();
                 for (Frame frame : frames) {
-                    imgs.put(frame, SwingFXUtils.fromFXImage(frame.getImage(), null));
+                    Image img = frame.getImage();
+                    waitForImageToLoad(img, 30, TimeUnit.SECONDS);
+                    if (img.isError()) {
+                        Alert a = new Alert(Alert.AlertType.ERROR);
+                        a.setTitle("Error");
+                        a.setHeaderText("Error loading frame: " + frame.getFile());
+                        a.setContentText(img.getException().getLocalizedMessage());
+                        a.showAndWait();
+                        return;
+                    }
+
+                    imgs.put(frame, SwingFXUtils.fromFXImage(img, null));
                 }
 
                 try (ImageOutputStream ios = ImageIO.createImageOutputStream(file)) {
@@ -563,25 +606,6 @@ public class EditorController {
 
     public void exportButtonOnAction(ActionEvent event) {
         showExportDialog();
-    }
-
-    public void rootPaneOnKeyPressed(KeyEvent event) {
-        if (event.isShortcutDown()) {
-            switch (event.getCode()) {
-                case E:
-                case S:
-                    showExportDialog();
-                    event.consume();
-                    break;
-                case W:
-                    openProjectsStage();
-                    // Intentionally falls over into next case
-                case Q:
-                    close();
-                    event.consume();
-                    break;
-            }
-        }
     }
 
     public void previewImageViewMouseClicked(MouseEvent event) {
