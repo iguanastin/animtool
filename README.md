@@ -1,4 +1,4 @@
-# AnimTool v1.0
+# AnimTool v1.1
 
 ![Animated image of application window](https://user-images.githubusercontent.com/19540597/66709872-e69cf980-ed29-11e9-98cd-d1430a9edf00.gif) ![File structure example](https://user-images.githubusercontent.com/19540597/66709891-6f1b9a00-ed2a-11e9-8108-145c692796b1.png)
 
