@@ -69,7 +69,7 @@ public class FrameListCell extends ListCell<Frame> {
         topBorderPane = new BorderPane(null, null, delayLabel, null, indexLabel);
         delayTextField.setPrefWidth(50);
         delayTextField.setOnAction(event -> {
-            getItem().setDelay(Integer.parseInt(delayTextField.getText()));
+            getItem().setDelay(Double.parseDouble(delayTextField.getText()));
             updateItem(getItem(), false);
         });
         delayTextField.setOnKeyPressed(event -> {
@@ -138,11 +138,11 @@ public class FrameListCell extends ListCell<Frame> {
 
             topBorderPane.setRight(delayLabel);
             if (item.getDelay() < 1) {
-                delayLabel.setText(item.getDefaultDelay() + "ms");
+                delayLabel.setText(String.format("%.2fms", item.getDefaultDelay()));
                 delayLabel.getStyleClass().remove(CUSTOM_DELAY_LABEL_STYLE_CLASS);
                 item.defaultDelayProperty().addListener(delayListener);
             } else {
-                delayLabel.setText(item.getDelay() + "ms");
+                delayLabel.setText(String.format("%.2fms", item.getDelay()));
                 if (!delayLabel.getStyleClass().contains(CUSTOM_DELAY_LABEL_STYLE_CLASS)) delayLabel.getStyleClass().add(CUSTOM_DELAY_LABEL_STYLE_CLASS);
                 item.delayProperty().addListener(delayListener);
             }

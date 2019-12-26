@@ -74,7 +74,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 
 public class EditorController {
 
-    private static final int DEFAULT_DELAY = 83;
+    private static final double DEFAULT_DELAY = 83.33333;
 
     public BorderPane rootPane;
     public DynamicImageView previewImageView;
@@ -97,7 +97,7 @@ public class EditorController {
 
     private final ObjectProperty<Timeline> timeline = new SimpleObjectProperty<>();
     private final BooleanProperty playing = new SimpleBooleanProperty(false);
-    private final IntegerProperty defaultDelay = new SimpleIntegerProperty(DEFAULT_DELAY);
+    private final DoubleProperty defaultDelay = new SimpleDoubleProperty(DEFAULT_DELAY);
 
     private final ObservableList<Frame> frames = FXCollections.observableArrayList();
 
@@ -120,11 +120,6 @@ public class EditorController {
         fpsTextField.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
                 parseFPSFromTextField();
-            }
-        });
-        fpsTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                fpsTextField.setText(oldValue);
             }
         });
         fpsTextField.setOnAction(event -> parseFPSFromTextField());
@@ -191,12 +186,12 @@ public class EditorController {
     }
 
     private void parseFPSFromTextField() {
-        int fps = 1000 / defaultDelay.get();
+        double fps = 1000.0 / defaultDelay.get();
 
         try {
-            int val = Integer.parseInt(fpsTextField.getText());
+            double val = Double.parseDouble(fpsTextField.getText());
 
-            if (val > 0 && val <= 1000) {
+            if (val > 0) {
                 fps = val;
                 defaultDelay.set(1000 / fps);
             }
@@ -290,7 +285,7 @@ public class EditorController {
         try {
             JSONObject json = new JSONObject(String.join("\n", Files.readAllLines(currentFolder.toPath().resolve("animtoolproject.json"))));
 
-            if (json.has("default-delay")) defaultDelay.set(json.getInt("default-delay"));
+            if (json.has("default-delay")) defaultDelay.set(json.getDouble("default-delay"));
             if (json.has("window-x")) rootPane.getScene().getWindow().setX(json.getInt("window-x"));
             if (json.has("window-y")) rootPane.getScene().getWindow().setY(json.getInt("window-y"));
             if (json.has("window-width")) rootPane.getScene().getWindow().setWidth(json.getInt("window-width"));
@@ -482,7 +477,7 @@ public class EditorController {
 
                     for (Frame frame : frames) {
                         if (frame.getDelay() > 0) {
-                            gsw.writeToSequence(imgs.get(frame), frame.getDelay());
+                            gsw.writeToSequence(imgs.get(frame), (int) frame.getDelay());
                         } else {
                             gsw.writeToSequence(imgs.get(frame));
                         }

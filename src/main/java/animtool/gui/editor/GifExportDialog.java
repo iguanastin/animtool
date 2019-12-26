@@ -38,7 +38,7 @@ public class GifExportDialog extends Dialog<GifExportConfig> {
     private final Map<String, String> disposalMap = new HashMap<>();
 
 
-    public GifExportDialog(int delay, boolean loop, String disposalMethod) {
+    public GifExportDialog(double delay, boolean loop, String disposalMethod) {
         disposalMap.put("Do nothing", GifSequenceWriter.NONE_DISPOSAL);
         disposalMap.put("Restore to background", GifSequenceWriter.RESTORE_TO_BACKGROUND_DISPOSAL);
         disposalMap.put("Restore to previous", GifSequenceWriter.RESTORE_TO_PREVIOUS_DISPOSAL);
@@ -72,15 +72,15 @@ public class GifExportDialog extends Dialog<GifExportConfig> {
 
         setResultConverter(param -> {
             if (param.equals(ok)) {
-                int d = delay;
+                double d = delay;
                 try {
-                    int val = Integer.parseInt(delayTextField.getText());
+                    double val = Double.parseDouble(delayTextField.getText());
                     if (val > 0) {
                         d = val;
                     }
                 } catch (NumberFormatException ignore) {
                 }
-                return new GifExportConfig(d, loopCheckBox.isSelected(), disposalMap.get(disposalChoiceBox.getValue()));
+                return new GifExportConfig((int) d, loopCheckBox.isSelected(), disposalMap.get(disposalChoiceBox.getValue()));
             } else {
                 return null;
             }
