@@ -55,7 +55,7 @@ public class Main extends Application {
     public static final String EDITOR_FXML = "/fxml/editor.fxml";
     public static final String ABOUT_FXML = "/fxml/about.fxml";
     public static final String HELP_FXML = "/fxml/help.fxml";
-    public static final String VERSION = "v1.1";
+    public static final String VERSION = "v1.1.1";
     public static final String TITLE = "AnimTool " + VERSION;
     public static final String GITHUB = "https://github.com/iguanastin/animtool";
     public static final String DISCORD = "https://discord.gg/yYegyr2";
