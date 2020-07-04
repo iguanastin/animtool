@@ -58,13 +58,9 @@ public class Main extends Application {
     public static final String VERSION = "v1.1.1";
     public static final String TITLE = "AnimTool " + VERSION;
     public static final String GITHUB = "https://github.com/iguanastin/animtool";
-    public static final String DISCORD = "https://discord.gg/yYegyr2";
     public static final File LOG_FILE = new File("animtool.log");
 
-    public static FilenameFilter imageFilter = (dir, name) -> {
-        name = name.toLowerCase();
-        return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg");
-    };
+    public static FilenameFilter imageFilter = (dir, name) -> name.toLowerCase().matches(".*\\.(jpg|jpeg|png|bmp)$");
 
     public static final Logger log = Logger.getGlobal();
 

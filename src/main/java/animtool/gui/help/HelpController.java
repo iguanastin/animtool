@@ -45,17 +45,15 @@ import java.util.logging.Level;
 public class HelpController {
 
     public ScrollPane rootPane;
-    public Hyperlink discordHyperlink;
     public Hyperlink githubHyperlink;
 
 
     @FXML
     public void initialize() {
-        discordHyperlink.setText(Main.DISCORD);
         githubHyperlink.setText(Main.GITHUB);
     }
 
-    public static void open(Class context, boolean dark) throws IOException {
+    public static void open(Class<?> context, boolean dark) throws IOException {
         Parent root = FXMLLoader.load(context.getResource(Main.HELP_FXML));
         javafx.scene.control.Dialog d = new Dialog();
         d.setTitle("Help");

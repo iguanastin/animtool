@@ -15,9 +15,6 @@ NOTE: This software is *NOT* a standalone animation suite; it's a way to use you
 - Pinning window to top
 - Seeking through frames individually
 
-## Questions/suggestions/bugs
-If you have questions, suggestions, found a bug, need help, etc. Join the [Discord server](https://discord.gg/yYegyr2) for this project!
-
 ## [Download](https://github.com/iguanastin/animtool/releases)
 Windows, MacOS, AND Linux are supported.
 

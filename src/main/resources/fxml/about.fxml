@@ -40,7 +40,6 @@
         </font>
     </Label>
     <Label fx:id="versionLabel" text="v#.#"/>
-    <Hyperlink fx:id="discordHyperlink" onAction="#basicHyperlinkOnAction" text="discord"/>
     <Hyperlink fx:id="githubHyperlink" onAction="#basicHyperlinkOnAction" text="github"/>
     <Button mnemonicParsing="false" onAction="#openLogButtonOnAction" text="Open log file"/>
 </VBox>

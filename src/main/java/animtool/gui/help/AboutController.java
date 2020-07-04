@@ -48,17 +48,15 @@ public class AboutController {
     public VBox rootPane;
     public Label versionLabel;
     public Hyperlink githubHyperlink;
-    public Hyperlink discordHyperlink;
 
 
     @FXML
     public void initialize() {
         versionLabel.setText(Main.VERSION);
-        discordHyperlink.setText(Main.DISCORD);
         githubHyperlink.setText(Main.GITHUB);
     }
 
-    public static void open(Class context, boolean dark) throws IOException {
+    public static void open(Class<?> context, boolean dark) throws IOException {
         Parent root = FXMLLoader.load(context.getResource(Main.ABOUT_FXML));
         Dialog d = new Dialog();
         d.setTitle("About");

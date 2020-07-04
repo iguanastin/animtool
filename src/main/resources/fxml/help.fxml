@@ -75,7 +75,6 @@
                     <VBox spacing="5.0" BorderPane.alignment="CENTER">
                         <Label text="Need help? Got a suggestion? Create an issue on Github, or ask about it in the Discord server!&#10;"
                                wrapText="true"/>
-                        <Hyperlink fx:id="discordHyperlink" onAction="#basicHyperlinkOnAction" text="discord"/>
                         <Hyperlink fx:id="githubHyperlink" onAction="#basicHyperlinkOnAction" text="github"/>
                     </VBox>
                 </left>
