@@ -1,4 +1,4 @@
-# AnimTool v1.1
+# AnimTool v1.2.1
 
 ![Animated image of application window](https://user-images.githubusercontent.com/19540597/66709872-e69cf980-ed29-11e9-98cd-d1430a9edf00.gif) ![File structure example](https://user-images.githubusercontent.com/19540597/66709891-6f1b9a00-ed2a-11e9-8108-145c692796b1.png)
 
@@ -16,13 +16,10 @@ NOTE: This software is *NOT* a standalone animation suite; it's a way to use you
 - Seeking through frames individually
 
 ## [Download](https://github.com/iguanastin/animtool/releases)
-Windows, MacOS, AND Linux are supported.
+Only Windows is supported.
 
-##### PLEASE NOTE: Java 8 is required to run this program.
-
-The latest release can be found on the [releases](https://github.com/iguanastin/animtool/releases) page. Download the `animtool-#.#-jar-with-dependencies.jar` file and run it with Java 8.
+The latest release can be found on the [releases](https://github.com/iguanastin/animtool/releases) page. Download the `animtool-#.#-exe`
 
 ## Or build it yourself
 1. Clone this repo
 2. Run: `mvn package`
-3. Maven will build a jar with the dependencies in the `target/` folder
