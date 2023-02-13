@@ -46,20 +46,18 @@ import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 public class ProjectsController {
 
-    private static final File configFile = new File("animtool.json");
+    private static final Preferences prefs = Preferences.userRoot().node("iguanastin/animtool");
 
     public BorderPane rootPane;
     public VBox recentVBox;
@@ -152,52 +150,39 @@ public class ProjectsController {
         try {
             saveConfig();
         } catch (IOException e) {
-            Main.log.log(Level.SEVERE, "Failed to save config file: " + configFile, e);
+            Main.log.log(Level.SEVERE, "Failed to save preferences", e);
         }
 
         ((Stage) rootPane.getScene().getWindow()).close();
     }
 
     private void loadConfig() {
-        try {
-            JSONObject json = new JSONObject(String.join("\n", Files.readAllLines(configFile.toPath())));
+        lastFolder = new File(prefs.get("last-folder", ""));
+        darkTheme.set(prefs.getBoolean("dark-theme", true));
+        rootPane.getScene().getWindow().setX(prefs.getDouble("window-x", 300));
+        rootPane.getScene().getWindow().setY(prefs.getDouble("window-y", 300));
 
-            if (json.has("last_folder")) lastFolder = new File(json.getString("last_folder"));
-            if (json.has("dark_theme")) darkTheme.set(json.getBoolean("dark_theme"));
-            if (json.has("window-x")) rootPane.getScene().getWindow().setX(json.getInt("window-x"));
-            if (json.has("window-y")) rootPane.getScene().getWindow().setY(json.getInt("window-y"));
+        String[] recent = prefs.get("recent", "").split(";");
+        for (String path : recent) {
+            if (path.isBlank()) continue;
 
-            // Get recent folders if present
-            if (json.has("recent")) {
-                JSONArray arr = json.getJSONArray("recent");
-                for (int i = 0; i < arr.length(); i++) {
-                    File file = new File(arr.getString(i));
-                    if (file.exists() && file.isDirectory()) recentFolders.add(file);
-                }
-            }
-        } catch (IOException e) {
-            Main.log.log(Level.WARNING, "Unable to read config json: " + configFile, e);
+            File file = new File(path);
+            if (file.isDirectory()) recentFolders.add(file);
         }
     }
 
     private void saveConfig() throws IOException {
-        JSONObject json = new JSONObject();
-        json.put("last_folder", lastFolder.getAbsolutePath());
-        json.put("dark_theme", darkTheme.get());
-        json.put("window-x", rootPane.getScene().getWindow().getX());
-        json.put("window-y", rootPane.getScene().getWindow().getY());
-
-        recentFolders.forEach(s -> json.append("recent", s));
-
-        try (FileWriter fw = new FileWriter(configFile)) {
-            json.write(fw, 2, 0);
-        }
+        prefs.put("last-folder", lastFolder.getAbsolutePath());
+        prefs.putBoolean("dark-theme", darkTheme.get());
+        prefs.putDouble("window-x", rootPane.getScene().getWindow().getX());
+        prefs.putDouble("window-y", rootPane.getScene().getWindow().getY());
+        prefs.put("recent", recentFolders.stream().map(File::getAbsolutePath).collect(Collectors.joining(";")));
     }
 
     public void openFolderButtonOnAction(ActionEvent event) {
         DirectoryChooser dc = new DirectoryChooser();
         dc.setTitle("Open Folder");
-        dc.setInitialDirectory(lastFolder);
+        if (lastFolder.isDirectory()) dc.setInitialDirectory(lastFolder);
         File file = dc.showDialog(rootPane.getScene().getWindow());
 
         if (file != null) {

@@ -26,6 +26,8 @@ hs_err_pid*
 
 *.iml
 
+jpackage/output/
+jpackage/input/
 target/
 .idea/
 animtool.json

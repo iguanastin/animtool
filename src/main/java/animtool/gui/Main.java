@@ -24,6 +24,7 @@
 
 package animtool.gui;
 
+import animtool.gui.projects.ProjectsController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -49,16 +50,16 @@ import java.util.logging.Logger;
 
 public class Main extends Application {
 
-    public static final String COMMON_CSS = "/fxml/common.css";
-    public static final String DARK_CSS = "/fxml/dark.css";
+    public static final String COMMON_CSS = ProjectsController.class.getResource("/fxml/common.css").toExternalForm();
+    public static final String DARK_CSS = ProjectsController.class.getResource("/fxml/dark.css").toExternalForm();
     public static final String PROJECTS_FXML = "/fxml/projects.fxml";
     public static final String EDITOR_FXML = "/fxml/editor.fxml";
     public static final String ABOUT_FXML = "/fxml/about.fxml";
     public static final String HELP_FXML = "/fxml/help.fxml";
-    public static final String VERSION = "v1.1.1";
+    public static final String VERSION = "v1.2.1";
     public static final String TITLE = "AnimTool " + VERSION;
     public static final String GITHUB = "https://github.com/iguanastin/animtool";
-    public static final File LOG_FILE = new File("animtool.log");
+    public static final File LOG_FILE = new File(System.getenv("APPDATA") + "/animtool/animtool.log");
 
     public static FilenameFilter imageFilter = (dir, name) -> name.toLowerCase().matches(".*\\.(jpg|jpeg|png|bmp)$");
 
@@ -135,6 +136,8 @@ public class Main extends Application {
     }
 
     private static void initLogger() {
+        if (!LOG_FILE.getParentFile().exists()) LOG_FILE.getParentFile().mkdirs();
+
         // Clear log file
         if (!LOG_FILE.delete())
             Main.log.warning(String.format("Could not clear log file: %s", LOG_FILE.getAbsolutePath()));

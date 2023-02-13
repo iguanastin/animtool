@@ -42,6 +42,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -573,6 +574,9 @@ public class EditorController {
     }
 
     public void rootPaneOnMouseExited(MouseEvent event) {
+        Bounds bounds = rootPane.localToScreen(rootPane.getBoundsInLocal());
+        if (bounds.contains(event.getScreenX(), event.getScreenY())) return;
+
         TranslateTransition tt = new TranslateTransition(Duration.millis(100), controlsVBox);
         tt.setFromY(0);
         tt.setToY(controlsVBox.getHeight());
